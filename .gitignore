@@ -190,3 +190,10 @@ poetry.toml
 # End of https://www.toptal.com/developers/gitignore/api/python,visualstudiocode
 venv/
 .vscode/
+
+data/raw/*
+!data/raw/.gitkeep
+data/pickle/*
+!data/pickle/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
