@@ -1,6 +1,6 @@
 # Predicting open hole composite failure using classical- and quantum-kernel SVM
 
-## Usage
+## Preliminaries
 ### Get the raw data
 Data is available at the following link: https://zenodo.org/records/7409612.
 
@@ -16,3 +16,7 @@ Simply run the file `label_data.py`:
 ```
 make run FILE=label_data.py
 ```
+
+## Description of files
+
+- `rbf_kta_opt.py`: maximise KTA of the RBF kernel. 
