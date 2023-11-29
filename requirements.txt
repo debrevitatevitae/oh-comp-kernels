@@ -9,6 +9,7 @@ executing>=1.2.0
 fonttools>=4.38.0
 ipython>=8.7.0
 jax>=0.4.20
+jaxlib>=0.4.20
 jedi>=0.18.2
 kiwisolver>=1.4.4
 matplotlib>=3.6.2
