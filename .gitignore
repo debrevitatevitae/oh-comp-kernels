@@ -199,5 +199,7 @@ data/processed/*
 !data/processed/.gitkeep
 results/*
 !results/.gitkeep
+graphics/*
+!graphics/.gitkeep
 
 test_*.py
