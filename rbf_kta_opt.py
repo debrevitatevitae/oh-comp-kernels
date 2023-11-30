@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 from project_directories import PROC_DATA_DIR
-from utils import target_alignment
+from utils import load_split_data, target_alignment
 
 
 @jax.jit
@@ -54,11 +54,7 @@ if __name__ == '__main__':
 
     np.random.seed(42)
 
-    df = pd.read_csv(PROC_DATA_DIR / 'data_labeled.csv')
-    X = df[['eps11', 'eps22', 'eps12']].to_numpy()
-    y = df['failed'].to_numpy(dtype=np.int32)
-
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.9)
+    X_train, X_test, y_train, y_test = load_split_data(test_size=0.9)
 
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
