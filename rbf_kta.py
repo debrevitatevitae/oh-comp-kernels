@@ -63,7 +63,7 @@ if __name__ == '__main__':
     N = len(y_train)
     batch_sizes = [math.ceil(frac*N)
                    for frac in [0.05, 0.1, 0.2, 0.3, 0.4, 0.5]]
-    num_reps = 10
+    num_reps = 100
 
     # create a pd.DataFrame with the batch sizes as columns. Rows will be the repetitions
     columns = [f'Batch Size {size}' for size in batch_sizes]
