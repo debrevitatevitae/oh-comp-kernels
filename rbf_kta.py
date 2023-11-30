@@ -1,5 +1,6 @@
 import math
 import os
+import time
 import pandas as pd
 import pennylane as qml
 from pennylane import numpy as np
@@ -48,6 +49,8 @@ def rbf_kernel(x, y, gamma=1.):
 
 
 if __name__ == '__main__':
+    start = time.time()
+
     np.random.seed(42)
 
     # data loading, splitting and scaling
@@ -88,3 +91,9 @@ if __name__ == '__main__':
     python_file_name = os.path.basename(__file__)
     python_file_name_no_ext = os.path.splitext(python_file_name)[0]
     df.to_csv(RESULTS_DIR / f'{python_file_name_no_ext}.csv', index=False)
+
+    exec_time = time.time() - start
+    minutes = int(exec_time // 60)
+    seconds = int(exec_time % 60)
+
+    print(f"Script execution time: {minutes} minutes and {seconds} seconds")
