@@ -7,6 +7,8 @@ import pandas as pd
 from project_directories import RESULTS_DIR, GRAPHICS_DIR
 
 
+kta_full_train_set = 0.06969  # from rbf_kta.py
+
 if __name__ == '__main__':
     start = time.time()
 
@@ -28,9 +30,14 @@ if __name__ == '__main__':
     for i, column in enumerate(df.columns):
         ax = axes[i]
         ax.hist(df[column], bins=5, color='skyblue', edgecolor='black')
+        ax.axvline(x=kta_full_train_set, color='red',
+                   linestyle='dashed', linewidth=2, label='full train set')
         ax.set_title(column)
         ax.set_xlabel('KTA')
         ax.set_ylabel('Frequency')
+
+    # Show legend only on the last subplot
+    ax.legend()
 
     # Adjust layout to prevent overlapping titles
     fig.tight_layout()

@@ -87,6 +87,10 @@ if __name__ == '__main__':
             # print KTA for this iteration
             print(f'Batch size {batch_size:d}, rep no {n:d}, kta {kta:.5f}')
 
+    kta_full_train_set = qml.kernels.target_alignment(
+        X_train_scaled, y_train, rbf_kernel, assume_normalized_kernel=True)
+    print(f"Full training set, kta {kta_full_train_set:.5f}")
+
     # save DataFrame to a csv file named after this Python file
     python_file_name = os.path.basename(__file__)
     python_file_name_no_ext = os.path.splitext(python_file_name)[0]
