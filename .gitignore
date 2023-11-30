@@ -197,5 +197,7 @@ data/pickle/*
 !data/pickle/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
+results/*
+!results/.gitkeep
 
 test_*.py
