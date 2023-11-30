@@ -7,7 +7,7 @@ from pennylane import numpy as np
 from sklearn.preprocessing import StandardScaler
 
 from project_directories import RESULTS_DIR
-from utils import load_split_data, target_alignment
+from utils import load_split_data
 
 
 def rbf_kernel(x, y, gamma=1.):
