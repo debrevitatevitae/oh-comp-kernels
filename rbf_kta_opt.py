@@ -83,8 +83,9 @@ if __name__ == '__main__':
     num_reps_at_checkpoint = 10
     epochs_in_checkpoint = num_epochs // num_checkpoints
     columns = ['kta', 'gamma']
-    rows = [f'Epoch no {n}' for n in range(
-        0, num_epochs, epochs_in_checkpoint)]
+    rows = ['Initial']
+    rows.extend([f'Epoch no {n}' for n in range(
+        epochs_in_checkpoint, num_epochs + epochs_in_checkpoint, epochs_in_checkpoint)])
     df = pd.DataFrame(columns=columns, index=rows)
 
     # batching function
@@ -105,6 +106,8 @@ if __name__ == '__main__':
     # initial kta
     kta_avg = compute_avg_kta()
     print(f"Initial average KTA ={kta_avg:.5f} , initial gamma ={gamma:.3f}")
+    df.loc['Initial', 'kta'] = kta_avg.item()
+    df.loc['Initial', 'gamma'] = gamma.item()
 
     # optimization loop
     for ep in range(num_epochs):
@@ -123,8 +126,8 @@ if __name__ == '__main__':
         if (ep + 1) % epochs_in_checkpoint == 0:
             kta_avg = compute_avg_kta()
 
-            df.loc[f'Epoch no {ep}', 'kta'] = kta_avg
-            df.loc[f'Epoch no {ep}', 'gamma'] = gamma.item()
+            df.loc[f'Epoch no {ep+1}', 'kta'] = kta_avg.item()
+            df.loc[f'Epoch no {ep+1}', 'gamma'] = gamma.item()
             print(
                 f"Epoch {ep+1}, average KTA = {kta_avg:.5f}, gamma={gamma:.3f}")
 
