@@ -18,5 +18,7 @@ make run FILE=label_data.py
 ```
 
 ## Description of files
-
-- `rbf_kta_opt.py`: maximise KTA of the RBF kernel. 
+- `rbf_kta.py`: studies the concentration around the average of the RBF KTA for different batch sizes.
+- `pp_rbf_kta.py`: plots histograms for each batch size with the values of the KTA compared to the full-training set KTA.
+- `rbf_kta_opt.py`: maximizes KTA of the RBF kernel.
+- `pp_rbf_kta_opt.py`: plots the KTA vs epochs for the RBF KTA maximization.
