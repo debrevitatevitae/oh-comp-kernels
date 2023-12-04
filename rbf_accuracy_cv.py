@@ -24,8 +24,7 @@ if __name__ == '__main__':
 
     # Read the optimal gamma value found during KTA optimization
     df_kta_opt = pd.read_csv(RESULTS_DIR / "rbf_kta_opt.csv")
-    # index 3 corresponds to 15 epochs, when the KTA stops growing monotonically
-    gamma_opt = df_kta_opt["gamma"][3]
+    gamma_opt = df_kta_opt["gamma"][df_kta_opt["kta"].argmax()]
 
     # Define the parameter grid for GridSearchCV
     param_grid = {'C': np.logspace(-1, 2, 4),
