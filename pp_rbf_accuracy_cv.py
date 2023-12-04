@@ -31,3 +31,9 @@ if __name__ == "__main__":
     plt.xlabel('gamma')
     plt.ylabel('C')
     plt.savefig(GRAPHICS_DIR / f"{python_file_name_no_ext}.pdf")
+
+    exec_time = time.time() - start
+    minutes = int(exec_time // 60)
+    seconds = int(exec_time % 60)
+
+    print(f"Script execution time: {minutes} minutes and {seconds} seconds")
