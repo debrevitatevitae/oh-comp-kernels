@@ -23,4 +23,4 @@ make run FILE=label_data.py
 - `rbf_kta_opt.py`: maximizes KTA of the RBF kernel.
 - `pp_rbf_kta_opt.py`: plots the KTA vs epochs for the RBF KTA maximization.
 - `rbf_accuracy_cv.py`: runs a grid-search cross validataton for different $(C,\,\gamma)$ combinations of the RBF SVM, including $\gamma_{\mathrm{opt}}$.
-- `rbf_accuracy_test.py`: computes the test set accuracy for the $(C,\,\gamma)_{\mathrm{opt}}$, which is the hyperparameters combination with the highest validation set accuracy as found from `rbf_accuracy_cv.py`.
+- `rbf_accuracy_test.py`: computes the test set accuracy after training for RBF. The training set size is allowed to increase. The hyperparameters are fixed to $(C,\,\gamma)_{\mathrm{opt}}$, corresponding to the highest KTA (see `rbf_accuracy_cv.py`).
