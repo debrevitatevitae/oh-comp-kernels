@@ -1,6 +1,8 @@
 import os
 import time
 from matplotlib import pyplot as plt
+from matplotlib.ticker import FuncFormatter
+import numpy as np
 
 import pandas as pd
 
@@ -26,18 +28,38 @@ if __name__ == '__main__':
     # Flatten the 2D array of axes for easier iteration
     axes = axes.flatten()
 
+    # Find the KTA extreme values to use as x_lims
+    kta_min = df.min().min()
+    kta_max = df.max().max()
+
+    # Formatting function for the precision to show in the x-ticks
+    def format_x_ticks(value, _):
+        return f'{value:.2f}'
+
     # Plot each column
     for i, column in enumerate(df.columns):
         ax = axes[i]
-        ax.hist(df[column], bins=5, color='skyblue', edgecolor='black')
+        ax.hist(df[column], bins=10, color='skyblue', edgecolor='black')
         ax.axvline(x=kta_full_train_set, color='red',
                    linestyle='dashed', linewidth=2, label='full train set')
+        ax.set_xticks([])
+        ax.set_yticks([])
         ax.set_title(column)
-        ax.set_xlabel('KTA')
-        ax.set_ylabel('Frequency')
+        # format every x-axis
+        ax.xaxis.set_major_formatter(FuncFormatter(format_x_ticks))
 
-    # Show legend only on the last subplot
-    ax.legend()
+    # Decorate axes
+    axes[0].set_ylabel('Frequency')
+    axes[0].set_yticks(np.linspace(0, 40, 8, dtype=np.int16))
+    axes[3].set_xlabel('KTA')
+    axes[3].set_xticks(np.linspace(kta_min, kta_max, 6))
+    axes[3].set_yticks(np.linspace(0, 40, 8, dtype=np.int16))
+    axes[3].set_ylabel('Frequency')
+    axes[4].set_xlabel('KTA')
+    axes[4].set_xticks(np.linspace(kta_min, kta_max, 6))
+    axes[5].set_xlabel('KTA')
+    axes[5].set_xticks(np.linspace(kta_min, kta_max, 6))
+    axes[5].legend()
 
     # Adjust layout to prevent overlapping titles
     fig.tight_layout()
