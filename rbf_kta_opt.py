@@ -71,7 +71,7 @@ if __name__ == '__main__':
 
     # optimization hyperparameters
     num_epochs = 100
-    batch_size = 157  # 10% of the training dataset dimension
+    batch_size = 471  # 30% of the training dataset dimension
     lr = 1e-1
     gamma = torch.tensor(0.1, requires_grad=True)  # initial gamma
     opt = torch.optim.Adam([gamma], lr)
