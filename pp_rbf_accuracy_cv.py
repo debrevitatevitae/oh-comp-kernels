@@ -1,0 +1,33 @@
+import os
+import time
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+from project_directories import RESULTS_DIR, GRAPHICS_DIR
+
+if __name__ == "__main__":
+    start = time.time()
+
+    # Load results into DataFrame
+    python_file_name = os.path.basename(__file__)
+    python_file_name_no_ext = os.path.splitext(python_file_name)[0]
+    # [3:] removes the heading 'pp_'
+    python_results_file_name = python_file_name_no_ext[3:]
+
+    df = pd.read_csv(RESULTS_DIR / f"{python_results_file_name}.csv")
+
+    # Create a pivot table for better visualization
+    pivot_table = df.pivot(
+        index='param_C', columns='param_gamma', values='mean_test_score')
+
+    # Create a heatmap
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(pivot_table, annot=True, fmt=".3f", cmap="viridis",
+                cbar_kws={'label': 'Mean Validation Score'},
+                xticklabels=pivot_table.columns.round(3),
+                yticklabels=pivot_table.index.round(3))
+    # plt.title('Grid Search Results: Mean Test Score for C and gamma')
+    plt.xlabel('gamma')
+    plt.ylabel('C')
+    plt.savefig(GRAPHICS_DIR / f"{python_file_name_no_ext}.pdf")
