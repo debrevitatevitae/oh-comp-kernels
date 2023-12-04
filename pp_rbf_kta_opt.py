@@ -22,6 +22,10 @@ if __name__ == '__main__':
     # Set up the figure and axes
     fig, ax = plt.subplots()
 
+    # Select the max KTA value and the corresponding number of epochs
+    kta_max = df['kta'].max()
+    epochs_kta_max = df['kta'].argmax() * 5
+
     # Set the y-tick formatting function
     def format_y_ticks(value, _):
         return f'{value:.3f}'
@@ -30,8 +34,8 @@ if __name__ == '__main__':
 
     # Plot
     ax.plot(range(0, 105, 5), df['kta'], linewidth=1.5, color='blue')
-    ax.set_xticks([0, 15, 100])
-    ax.set_yticks([df.iloc[0, 0], df.iloc[3, 0]])
+    ax.set_xticks([0, epochs_kta_max, 100])
+    ax.set_yticks([df['kta'][0], kta_max])
     ax.set_xlabel('epochs')
     ax.set_ylabel('KTA')
 
