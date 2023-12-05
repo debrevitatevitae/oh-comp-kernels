@@ -3,7 +3,7 @@ from jax import numpy as jnp
 
 def square_kernel_matrix(X, kernel_func):
     """
-    Compute the square kernel matrix using JAX.
+    Compute the square kernel matrix using JAX. Since this function will be used for quantum kernels, it is assumed that the kernel is normalized (diagonal elements of the kernel matrix are equal to 1).
 
     Parameters
     ----------
@@ -17,11 +17,11 @@ def square_kernel_matrix(X, kernel_func):
     K : jax.numpy.ndarray
         Square kernel matrix of shape (n_samples, n_samples).
     """
-    n_samples = X.shape[0]
-    K = jnp.zeros((n_samples, n_samples))
+    N = X.shape[0]
+    K = jnp.eye(N)
 
-    for i in range(n_samples):
-        for j in range(i, n_samples):
+    for i in range(N-1):
+        for j in range(i+1, N):
             # Compute kernel value and fill in both (i, j) and (j, i) entries
             K_i_j = kernel_func(X[i], X[j])
             K = K.at[i, j].set(K_i_j)
@@ -30,11 +30,14 @@ def square_kernel_matrix(X, kernel_func):
     return K
 
 
+def frobenius_ip(A, B):
+    return jnp.sum(A * B)
+
+
 def target_alignment(
     X,
     Y,
     kernel,
-    assume_normalized_kernel=False,
     rescale_class_labels=True,
 ):
     """
@@ -48,8 +51,6 @@ def target_alignment(
         Class labels.
     kernel : callable
         Kernel function to compute the square kernel matrix.
-    assume_normalized_kernel : bool, optional
-        Flag indicating whether the kernel is assumed to be normalized (default is False).
     rescale_class_labels : bool, optional
         Flag indicating whether to rescale class labels (default is True).
 
@@ -67,13 +68,11 @@ def target_alignment(
     >>> X = ...  # Input data matrix
     >>> Y = ...  # Class labels
     >>> kernel = ...  # Kernel function
-    >>> result = target_alignment_qml_jax(X, Y, kernel)
+    >>> result = target_alignment(X, Y, kernel)
     >>> print(result)
     Target Alignment: 0.1234
     """
-
-    X = jnp.array(X)
-    Y = jnp.array(Y)
+    N = X.shape[0]
 
     K = square_kernel_matrix(
         X,
@@ -87,8 +86,7 @@ def target_alignment(
     else:
         _Y = jnp.array(Y)
 
-    T = jnp.outer(_Y, _Y)
-    inner_product = jnp.sum(K * T)
-    norm = jnp.sqrt(jnp.sum(K * K) * jnp.sum(T * T))
+    K_target = jnp.outer(_Y, _Y)
+    kta = frobenius_ip(K, K_target) / (N * jnp.sqrt(frobenius_ip(K, K)))
 
-    return inner_product / norm
+    return kta
