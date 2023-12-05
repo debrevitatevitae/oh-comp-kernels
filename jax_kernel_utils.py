@@ -31,6 +31,38 @@ def square_kernel_matrix(X, kernel_func):
 
 
 def frobenius_ip(A, B):
+    """
+    Compute the Frobenius inner product between two matrices.
+
+    Parameters
+    ----------
+    A : ndarray
+        The first matrix.
+    B : ndarray
+        The second matrix.
+
+    Returns
+    -------
+    float
+        The Frobenius inner product between the two matrices.
+
+    Examples
+    --------
+    >>> A = jnp.array([[1.0, 2.0], [3.0, 4.0]])
+    >>> B = jnp.array([[5.0, 6.0], [7.0, 8.0]])
+    >>> frobenius_ip(A, B)
+    70.0
+
+    Notes
+    -----
+    The Frobenius inner product between two matrices A and B is defined as the sum of
+    the element-wise products of the corresponding entries:
+
+    Frob(A, B) = sum(A[i, j] * B[i, j] for all i, j)
+
+    This function utilizes the JAX library's numpy implementation (jax.numpy).
+
+    """
     return jnp.sum(A * B)
 
 
