@@ -28,3 +28,4 @@ Scripts without the `pp_` produce CSV files that can be later loaded by `pp_` (p
 - `pp_rbf_accuracy_cv.py`: plots a heatmap of the validation accuracy for different $(C,\,\gamma)$ combinations of the RBF SVM.
 - `rbf_accuracy_test.py`: computes the test set accuracy after training for RBF. The training set size is allowed to increase. The hyperparameters are fixed to $(C,\,\gamma)_{\mathrm{opt}}$, corresponding to the highest KTA (see `rbf_accuracy_cv.py`).
 - `pp_rbf_accuracy_test.py`: produces an error-bar plot of the test accuracy of the RBF SVM with $(C,\,\gamma)_{\mathrm{opt}}$ for increasing size of the training set.
+- `q_kern_select.py`: explores the KTA of a grid of quantum kernels (Hardware Efficient Ansatz embedding). Width and depth are varied. Saves statistics to a csv and reports the maximum KTA and the variance achieved by every model.
