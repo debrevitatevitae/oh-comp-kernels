@@ -203,3 +203,4 @@ graphics/*
 !graphics/.gitkeep
 
 test_*.py
+.DS_Store
