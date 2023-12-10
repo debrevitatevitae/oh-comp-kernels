@@ -12,7 +12,7 @@ from project_directories import RESULTS_DIR
 from utils import load_split_data
 
 
-jax.config.update('jax_enable_x64', True)
+jax.config.update('jax_enable_x64', False)
 
 
 def layer(x, params, wires, i0=0, inc=1):
@@ -29,9 +29,16 @@ def layer(x, params, wires, i0=0, inc=1):
 
 
 def embedding(x, params, wires):
-    """Taken from https://github.com/thubregtsen/qhack"""
+    """Adapted from https://github.com/thubregtsen/qhack"""
+    inc = 1
     for j, layer_params in enumerate(params):
         layer(x, layer_params, wires, i0=j * len(wires))
+    # encode data one last time to avoid cancellations in the kernel circuit
+        i = len(params) * len(wires)
+        for wire in wires:
+            qml.Hadamard(wires=[wire])
+            qml.RZ(x[i % len(x)], wires=[wire])
+            i += inc
 
 
 def frobenius_ip(A, B):
