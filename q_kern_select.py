@@ -64,8 +64,8 @@ if __name__ == '__main__':
     # define the search parameters for kernel selection
     width_grid = [3, 6, 9, 12]
     depth_grid = [1, 2, 4, 8, 16]
-    num_batches = 10
-    batch_size = int(0.1 * N)
+    num_batches = 500
+    batch_size = 10
     num_param_samples = 10
 
     # batching function
