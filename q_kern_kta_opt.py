@@ -63,12 +63,12 @@ if __name__ == '__main__':
     y_test = jnp.array(y_test)
 
     # create pandas DataFrame to store results
-    columns = ["epochs", "kta"]
+    columns = ["run_id", "epoch", "kta"]
     df = pd.DataFrame(columns=columns)
 
     # define the embedding kernel (with JAX)
     num_qubits = 3
-    num_layers = 2
+    num_layers = 1
     wires = list(range(num_qubits))
     dev = qml.device('default.qubit.jax', wires=num_qubits)
 
@@ -98,12 +98,12 @@ if __name__ == '__main__':
         polarity = jnp.sum(K * T)
 
         # normalise
-        kta = polarity / (N * jnp.sum(K * K))
+        kta = polarity / (N * jnp.sqrt(jnp.sum(K * K)))
 
         return -kta
 
     # optimizer
-    eta = 0.01
+    eta = 0.1
     adam = optax.adam(learning_rate=eta)
     opt = jaxopt.OptaxSolver(opt=adam, fun=kta_loss)
 
@@ -127,52 +127,68 @@ if __name__ == '__main__':
         return key, ave_loss
 
     # initial parameters and optimizer initialization
-    _, key = jax.random.split(key)
-    init_params = jax.random.uniform(
-        key, minval=0., maxval=2*jnp.pi, shape=(num_layers, 2, num_qubits))
-
-    key, X_batch, y_batch = batch_data(key)
-    opt_state = opt.init_state(init_params, X_batch, y_batch)
-    params = init_params
-
-    # optimization loop with early stopping
-    num_epochs = 2000
+    num_runs = 5
+    num_epochs = 500
     epochs_per_checkpoint = 50
+
     best_kta = 0.
+    best_run = None
     best_params = None
 
-    for ep in range(num_epochs):
-        # Every some epochs report loss value averaged over some batches
-        if ep % epochs_per_checkpoint == 0:
-            key, loss = compute_ave_kta_loss(key, params)
-            kta = -loss
-            print(
-                f"Epoch {ep}: kta averaged over {num_batches_loss_eval} batches = {kta:.4f}", flush=True)
+    for run in range(num_runs):
+        print("New optimization run")
 
-            if kta > best_kta:
-                best_kta = kta
-                best_params = params
+        _, key = jax.random.split(key)
+        init_params = jax.random.uniform(
+            key, minval=0., maxval=2*jnp.pi, shape=(num_layers, 2, num_qubits))
 
-        df.loc[len(df)] = {
-            "epochs": ep,
-            "kta": kta
-        }
-
-        # select a batch
         key, X_batch, y_batch = batch_data(key)
+        opt_state = opt.init_state(init_params, X_batch, y_batch)
+        params = init_params
 
-        # optimization step
-        params, opt_state = opt.update(
-            params, opt_state, X_batch, y_batch)
+        # optimization loop with early stopping
+
+        for ep in range(num_epochs):
+            # Every some epochs report loss value averaged over some batches
+            if ep % epochs_per_checkpoint == 0:
+                key, loss = compute_ave_kta_loss(key, params)
+                kta = -loss
+                print(
+                    f"Epoch {ep}: kta averaged over {num_batches_loss_eval} batches = {kta:.4f}", flush=True)
+
+                if kta > best_kta:
+                    best_kta = kta
+                    best_params = params
+                    best_run = run
+
+                df.loc[len(df)] = {
+                    "run_id": run,
+                    "epoch": ep,
+                    "kta": kta
+                }
+
+            # select a batch
+            key, X_batch, y_batch = batch_data(key)
+
+            # optimization step
+            params, opt_state = opt.update(
+                params, opt_state, X_batch, y_batch)
+
+    # at the end store the best run and best kta with a 'trick'
+    df.loc[len(df)] = {
+        "run_id": best_run,
+        "epoch": "best kta",
+        "kta": best_kta
+    }
 
     # save DataFrame to a csv file named after this Python file
     python_file_name = os.path.basename(__file__)
     python_file_name_no_ext = os.path.splitext(python_file_name)[0]
     df.to_csv(RESULTS_DIR /
-              f'{python_file_name_no_ext}_0{num_qubits}_0{num_layers}.csv', index=False)
+              f'{python_file_name_no_ext}_0{num_qubits}0{num_layers}.csv', index=False)
 
     # pickle the best parameters
-    with open(PICKLE_DATA_DIR / f'{python_file_name_no_ext}_0{num_qubits}_0{num_layers}.pkl', 'wb') as f:
+    with open(PICKLE_DATA_DIR / f'{python_file_name_no_ext}_0{num_qubits}0{num_layers}.pkl', 'wb') as f:
         pickle.dump(best_params, f)
 
     exec_time = time.time() - start
