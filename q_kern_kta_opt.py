@@ -103,7 +103,7 @@ if __name__ == '__main__':
         return -kta
 
     # optimizer
-    eta = 0.1
+    eta = 0.01
     adam = optax.adam(learning_rate=eta)
     opt = jaxopt.OptaxSolver(opt=adam, fun=kta_loss)
 
@@ -150,7 +150,7 @@ if __name__ == '__main__':
 
         for ep in range(num_epochs):
             # Every some epochs report loss value averaged over some batches
-            if ep % epochs_per_checkpoint == 0:
+            if ep % epochs_per_checkpoint == 0 or ep+1 == num_epochs:
                 key, loss = compute_ave_kta_loss(key, params)
                 kta = -loss
                 print(
