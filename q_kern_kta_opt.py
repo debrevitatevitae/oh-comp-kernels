@@ -67,8 +67,8 @@ if __name__ == '__main__':
     df = pd.DataFrame(columns=columns)
 
     # define the embedding kernel (with JAX)
-    num_qubits = 3
-    num_layers = 1
+    num_qubits = 9
+    num_layers = 4
     wires = list(range(num_qubits))
     dev = qml.device('default.qubit.jax', wires=num_qubits)
 
@@ -177,7 +177,7 @@ if __name__ == '__main__':
     # at the end store the best run and best kta with a 'trick'
     df.loc[len(df)] = {
         "run_id": best_run,
-        "epoch": "best kta",
+        "epoch": -1,  # convention value: indicates best kta
         "kta": best_kta
     }
 
