@@ -31,3 +31,5 @@ Except for 'general-purpose' files (`label_data.py`, `project_directories.py` an
 - `pp_rbf_accuracy_test.py`: produces an error-bar plot of the test accuracy of the RBF SVM with $(C,\,\gamma)_{\mathrm{opt}}$ for increasing size of the training set.
 - `q_kern_select.py`: explores the KTA of a grid of quantum kernels (Hardware Efficient Ansatz embedding). Width and depth are varied. Saves statistics to a csv and reports the maximum KTA and the variance achieved by every model.
 - `pp_q_kern_select.py`: produces heatmaps of the maximum KTA and the KTA variance for all the width/depth combinations of the Hardware Efficient Ansatz (HEA) kernels considered in `q_kern_select.py`. These charts are used for kernel selection. 
+- `q_kern_kta_opt`: kta optimization of a quantum kernel identified by a width and a depth of the embedding. The optimization is repeated for multiple initializations of the variational parameters.
+- `pp_q_kern_kta_opt`: plots the optimization histories of the best run for several different quantum kernels.
