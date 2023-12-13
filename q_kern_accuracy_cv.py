@@ -70,7 +70,7 @@ if __name__ == '__main__':
     dev = qml.device('default.qubit.jax', wires=num_qubits)
 
     # random params or load them from pkl file
-    load_params = False
+    load_params = True
 
     if load_params:
         with open(PICKLE_DATA_DIR / f"q_kern_kta_opt_0{num_qubits}0{num_layers}.pkl", 'rb') as params_file:
@@ -94,11 +94,16 @@ if __name__ == '__main__':
     # create SVC
     svc = SVC(kernel=partial(qml.kernels.kernel_matrix, kernel=kernel))
 
+    # isolate a sample
+    _, key = jax.random.split(key)
+    sample = jax.random.choice(
+        key, num_samples, shape=(int(0.2*num_samples),))
+
     # create a GridSearchCV and fit to the data
     grid_search = GridSearchCV(
-        estimator=svc, param_grid=cv_param_grid, scoring='accuracy', cv=10, n_jobs=-1, refit=False, verbose=3)
+        estimator=svc, param_grid=cv_param_grid, scoring='accuracy', cv=5, n_jobs=-1, refit=False, verbose=3)
 
-    grid_search.fit(X_train_scaled, y_train)
+    grid_search.fit(X_train_scaled[sample], y_train[sample])
 
     # store CV results in a DataFrame
     df_results = pd.DataFrame(grid_search.cv_results_)
