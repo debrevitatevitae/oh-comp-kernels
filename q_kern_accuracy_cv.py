@@ -1,7 +1,3 @@
-# Load, split and scale the data
-# Load a csv file w the corresponding parameters of the embedding
-# Define the classifier as a SVC with the quantum kernel with fixed parameters
-# Run a grid-search cross validation over the same values of C used for the RBF kernel
 from functools import partial
 import os
 import pickle
@@ -15,7 +11,7 @@ import pennylane as qml
 from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.svm import SVC
-from project_directories import RESULTS_DIR
+from project_directories import PICKLE_DATA_DIR, RESULTS_DIR
 
 from utils import load_split_data
 
@@ -77,7 +73,7 @@ if __name__ == '__main__':
     load_params = False
 
     if load_params:
-        with open(RESULTS_DIR / f"q_kern_kta_opt_0{num_qubits}0{num_layers}.csv", 'rb') as params_file:
+        with open(PICKLE_DATA_DIR / f"q_kern_kta_opt_0{num_qubits}0{num_layers}.pkl", 'rb') as params_file:
             params = pickle.load(params_file)
     else:
         _, key = jax.random.split(key)
@@ -100,7 +96,7 @@ if __name__ == '__main__':
 
     # create a GridSearchCV and fit to the data
     grid_search = GridSearchCV(
-        estimator=svc, param_grid=cv_param_grid, scoring='accuracy', cv=5, n_jobs=-1, refit=False, verbose=3)
+        estimator=svc, param_grid=cv_param_grid, scoring='accuracy', cv=10, n_jobs=-1, refit=False, verbose=3)
 
     grid_search.fit(X_train_scaled, y_train)
 
