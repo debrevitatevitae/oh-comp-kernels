@@ -8,7 +8,7 @@ from jax import numpy as jnp
 import numpy as np
 import pandas as pd
 import pennylane as qml
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import cross_val_score
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.svm import SVC
 from project_directories import PICKLE_DATA_DIR, RESULTS_DIR
@@ -16,6 +16,46 @@ from project_directories import PICKLE_DATA_DIR, RESULTS_DIR
 from utils import load_split_data
 
 jax.config.update('jax_enable_x64', False)
+
+
+class GridSearchCVCustom():
+    def __init__(self, estimator, param_grid, batch_size=10, cv=5, n_jobs=1) -> None:
+        self.estimator = estimator
+        self.param_grid = param_grid  # assumed to be a 1d list of `C` values
+        self.batch_size = batch_size
+        self.cv = cv
+        self.n_jobs = n_jobs
+
+    def fit(self, X, y):
+
+        def batch_iterator(array1, array2):
+            # Ensure array1 and array2 have the same length
+            assert len(array1) == len(array2)
+
+            for start in range(0, len(array1), self.batch_size):
+                end = start + self.batch_size
+                yield array1[start:end], array2[start:end]
+
+        self.cv_results_ = {
+            "param_C": [],
+            "mean_test_score": [],
+            "std_test_score": []
+        }
+
+        for param_C in self.param_grid:
+            print(f"C={param_C:e}")
+            test_scores = np.array([])
+            estimator = self.estimator.set_params(C=param_C)
+            for X_batch, y_batch in batch_iterator(X, y):
+                # exclude very small batches
+                if len(y_batch) > self.cv:
+                    batch_cv_scores = cross_val_score(
+                        estimator, X_batch, y_batch, cv=self.cv, n_jobs=self.n_jobs, verbose=3)
+                    test_scores = np.append(test_scores, batch_cv_scores)
+
+            self.cv_results_["param_C"].append(param_C)
+            self.cv_results_["mean_test_score"].append(np.mean(test_scores))
+            self.cv_results_["std_test_score"].append(np.std(test_scores))
 
 
 def layer(x, params, wires, i0=0, inc=1):
@@ -64,8 +104,8 @@ if __name__ == '__main__':
     y_test = jnp.array(y_test)
 
     # define the embedding kernel (with JAX)
-    num_qubits = 3
-    num_layers = 1
+    num_qubits = 9
+    num_layers = 4
     wires = list(range(num_qubits))
     dev = qml.device('default.qubit.jax', wires=num_qubits)
 
@@ -88,36 +128,28 @@ if __name__ == '__main__':
         qml.adjoint(embedding)(x2, params, wires)
         return qml.expval(qml.Projector([0]*num_qubits, wires=wires))
 
-# Define the parameter grid for GridSearchCV
-    cv_param_grid = {'C': np.logspace(-1, 2, 4)}
+    # Define the parameter grid for GridSearchCV
+    cv_param_grid = np.logspace(-1, 2, 4)
 
     # create SVC
     svc = SVC(kernel=partial(qml.kernels.kernel_matrix, kernel=kernel))
 
-    # isolate a sample
-    _, key = jax.random.split(key)
-    sample = jax.random.choice(
-        key, num_samples, shape=(int(0.2*num_samples),))
-
     # create a GridSearchCV and fit to the data
-    grid_search = GridSearchCV(
-        estimator=svc, param_grid=cv_param_grid, scoring='accuracy', cv=5, n_jobs=-1, refit=False, verbose=3)
+    grid_search = GridSearchCVCustom(
+        estimator=svc, param_grid=cv_param_grid, batch_size=int(0.2*num_samples), cv=10, n_jobs=-1)
 
-    grid_search.fit(X_train_scaled[sample], y_train[sample])
+    grid_search.fit(X_train_scaled, y_train)
 
-    # store CV results in a DataFrame
     df_results = pd.DataFrame(grid_search.cv_results_)
 
     # Extract the mean and standaed deviation of the validation error and save to csv file
-    selected_columns = ['param_C',
-                        'mean_test_score', 'std_test_score']
     python_file_name = os.path.basename(__file__)
     python_file_name_no_ext = os.path.splitext(python_file_name)[0]
     file_name_width_depth = python_file_name_no_ext + \
         f"_0{num_qubits}0{num_layers}"
     results_file_name = file_name_width_depth + \
         "_trained" if load_params else file_name_width_depth + "_random"
-    df_results[selected_columns].to_csv(
+    df_results.to_csv(
         RESULTS_DIR / f'{results_file_name}.csv', index=False)
 
     exec_time = time.time() - start
