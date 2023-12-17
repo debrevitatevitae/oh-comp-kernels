@@ -204,3 +204,4 @@ graphics/*
 
 test_*.py
 .DS_Store
+backup/
