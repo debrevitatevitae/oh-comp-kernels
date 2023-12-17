@@ -30,15 +30,8 @@ def layer(x, params, wires, i0=0, inc=1):
 
 def embedding(x, params, wires):
     """Adapted from https://github.com/thubregtsen/qhack"""
-    inc = 1
     for j, layer_params in enumerate(params):
         layer(x, layer_params, wires, i0=j * len(wires))
-    # encode data one last time to avoid cancellations in the kernel circuit
-        i = len(params) * len(wires)
-        for wire in wires:
-            qml.Hadamard(wires=[wire])
-            qml.RZ(x[i % len(x)], wires=[wire])
-            i += inc
 
 
 def frobenius_ip(A, B):
@@ -63,7 +56,7 @@ if __name__ == '__main__':
 
     # define the search parameters for kernel selection
     width_grid = [3, 6, 9, 12]
-    depth_grid = [1, 2, 4, 8, 16]
+    depth_grid = [1, 2, 3, 4]
     num_batches = 500
     batch_size = 10
     num_param_samples = 10
