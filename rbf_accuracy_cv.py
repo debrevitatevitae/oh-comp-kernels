@@ -20,7 +20,6 @@ if __name__ == '__main__':
     X_train = df_train[['eps11', 'eps22', 'eps12']].to_numpy()
     y_train = df_train['failed'].to_numpy(dtype=np.int32)
 
-    N = len(y_train)
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
 
