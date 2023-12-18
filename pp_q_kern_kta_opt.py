@@ -15,47 +15,70 @@ if __name__ == "__main__":
     python_file_name_no_ext = os.path.splitext(python_file_name)[0]
     # [3:] removes the heading 'pp_'
     python_results_file_name = python_file_name_no_ext[3:]
-    embedding_ids = ["_0301", "_0302", "_0601", "_0602", "_0904"]
+    embedding_ids = ["he2" + f"w{i}d{j}" for i in [3, 6] for j in range(2, 5)]
 
     fig, ax = plt.subplots(figsize=(10, 6))
-    colors = ['#feebe2', '#fbb4b9', '#f768a1', '#c51b8a', '#7a0177']
 
-    for i, embd_id in enumerate(embedding_ids):
-        f = python_results_file_name + embd_id
-        df = pd.read_csv(RESULTS_DIR / f"{f}.csv", dtype={
-            "run_id": int,
-            "epoch": int,
-            "kta": float
-        })
+    # set up a seaborn stacked barplot
+    sns.set_theme(style="whitegrid")
+    sns.set_context("paper", font_scale=1.5)
+    sns.set_palette("colorblind")
+    sns.set_style("ticks")
 
-        # select best run optimization
-        hist_df = df.iloc[:-1]
-        best_run = df["run_id"].iloc[-1]
-        only_best_run = hist_df["run_id"] == best_run
-        best_run_df = hist_df[only_best_run]
+    # loop over embedding ids, find the run with the best kta and plot a bar with the initial kta for that run and the best kta
+    for i, embedding_id in enumerate(embedding_ids):
+        df = pd.read_csv(
+            RESULTS_DIR / f"{python_results_file_name}_{embedding_id}.csv")
+        df.columns = ["run_id", "epoch", "kta"]
 
-        # add to plot
-        ax.plot(best_run_df["epoch"], best_run_df["kta"], color=colors[i])
+        # find the run with the best kta
+        best_run_id = df[df["epoch"] == -1]["run_id"].values[0]
+        best_kta = df[df["epoch"] == -1]["kta"].values[0]
+        initial_kta = df[df["run_id"] == best_run_id]["kta"].values[0]
 
-        # annotate label
-        ax.text(best_run_df["epoch"].iloc[-1] + 10,
-                best_run_df["kta"].iloc[-1], "qk" + embd_id, va="center")
+        # plot a bar with the initial kta and the best kta
+        sns.barplot(
+            x=[f"{embedding_id}"],
+            y=[best_kta],
+            color="C1",
+            ax=ax
+        )
+        sns.barplot(
+            x=[f"{embedding_id}"],
+            y=[initial_kta],
+            color="C0",
+            ax=ax
+        )
 
-        # find max and annotate initial and max
-        max_kta_idx = best_run_df["kta"].argmax()
-        max_kta = best_run_df["kta"].iloc[max_kta_idx]
-        max_kta_epoch = best_run_df["epoch"].iloc[max_kta_idx]
-        ax.annotate(f"{best_run_df['kta'].iloc[0]:.3f}", (best_run_df["epoch"].iloc[0], best_run_df["kta"].iloc[0]),
-                    textcoords="offset points", xytext=(0, 5), ha='center', fontsize=7)
-        ax.annotate(f"{max_kta:.3f}", (max_kta_epoch, max_kta),
-                    textcoords="offset points", xytext=(0, 5), ha='center', fontsize=7)
+        # annotate the bars with the best kta and the initial kta
+        sns.set_context("paper", font_scale=1.1)  # Adjust the font scale
 
-    ax.set_xticks([0, 499])
+        # ...
+        ax.annotate(f"{best_kta:.3f}",
+                    xy=(i, best_kta),
+                    # Adjust the distance from the top of the bars
+                    xytext=(i, best_kta + 0.005),
+                    ha="center",
+                    va="bottom",
+                    color="black")
+        ax.annotate(f"{initial_kta:.3f}",
+                    xy=(i, initial_kta),
+                    # Adjust the distance from the top of the bars
+                    xytext=(i, initial_kta - 0.02),
+                    ha="center",
+                    va="bottom",
+                    color="white")
+
+    # remove y ticks and outer frame
     ax.set_yticks([])
-    ax.spines['left'].set_visible(False)
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    ax.set_xlabel("epoch")  # remember that this is an average
+    sns.despine(ax=ax, left=True)
+
+    # add a legend with matching colors for the bars
+    leg = plt.legend(["initial KTA", "best KTA"], loc="upper center", ncol=2,
+                     bbox_to_anchor=(0.5, 1.1), frameon=False,
+                     fontsize=12)
+    leg.legend_handles[0].set_color("C0")
+    leg.legend_handles[1].set_color("C1")
 
     plt.savefig(GRAPHICS_DIR / f"{python_file_name_no_ext}.pdf")
 
