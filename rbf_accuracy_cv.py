@@ -3,12 +3,10 @@ import time
 
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
-from project_directories import RESULTS_DIR
-
-from utils import load_split_data
+from project_directories import PROC_DATA_DIR, RESULTS_DIR
 
 
 if __name__ == '__main__':
@@ -17,7 +15,11 @@ if __name__ == '__main__':
     np.random.seed(42)
 
     # data loading, splitting and scaling
-    X_train, _, y_train, _ = load_split_data(test_size=0.2)
+    df_data = pd.read_csv(PROC_DATA_DIR / 'data_labeled.csv')
+    df_train, _ = train_test_split(df_data, train_size=0.1)
+    X_train = df_train[['eps11', 'eps22', 'eps12']].to_numpy()
+    y_train = df_train['failed'].to_numpy(dtype=np.int32)
+
     N = len(y_train)
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
@@ -35,7 +37,7 @@ if __name__ == '__main__':
 
     # create a GridSearchCV and fit to the data
     grid_search = GridSearchCV(
-        estimator=svc, param_grid=param_grid, scoring='accuracy', cv=10)
+        estimator=svc, param_grid=param_grid, scoring='accuracy', cv=5)
     grid_search.fit(X_train_scaled, y_train)
 
     # store CV results in a DataFrame
