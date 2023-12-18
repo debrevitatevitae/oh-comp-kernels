@@ -50,11 +50,32 @@ if __name__ == "__main__":
         ax.set_xscale("log")
         ax.set_title(f"{embedding}")
         ax.set_xlabel("C")
-        ax.set_ylabel("Test accuracy")
+        ax.set_ylabel("Mean validation accuracy")
 
         # Remove titles in legends
         handles, labels = ax.get_legend_handles_labels()
         ax.legend(handles=handles[:], labels=["Random", "Trained"])
+
+        # add an inset axis with a barplot of std_test_score
+        inset_ax = ax.inset_axes([0.55, 0.05, 0.45, 0.45])
+        sns.barplot(
+            x="param_C",
+            y="std_test_score",
+            hue="trained",
+            hue_order=[False, True],
+            data=embedding_data,
+            ax=inset_ax,
+            width=0.6  # Adjust the width value as needed
+        )
+
+        # decorate the inset axes
+        inset_ax.set_xlabel("")
+        inset_ax.set_xticklabels([])
+        inset_ax.set_ylabel("")
+        inset_ax.get_legend().remove()
+        inset_ax.yaxis.set_major_locator(plt.MaxNLocator(5))
+        inset_ax.tick_params(axis='y', labelsize=8)
+        inset_ax.set_title("Std val acc")
 
     plt.tight_layout()
     plt.savefig(GRAPHICS_DIR / f"{python_file_name_no_ext}.pdf")
