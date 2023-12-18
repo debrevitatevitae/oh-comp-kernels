@@ -3,11 +3,11 @@ import time
 
 import numpy as np
 import pandas as pd
+from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
-from project_directories import RESULTS_DIR
+from project_directories import PROC_DATA_DIR, RESULTS_DIR
 
-from utils import load_split_data
 
 if __name__ == '__main__':
     start = time.time()
@@ -15,7 +15,14 @@ if __name__ == '__main__':
     np.random.seed(42)
 
     # data loading, splitting, and scaling
-    X_train, X_test, y_train, y_test = load_split_data(test_size=0.2)
+    df_data = pd.read_csv(PROC_DATA_DIR / 'data_labeled.csv')
+    df_train, df_test = train_test_split(df_data, test_size=0.2)
+
+    X_train = df_train[['eps11', 'eps22', 'eps12']].to_numpy()
+    y_train = df_train['failed'].to_numpy(dtype=np.int32)
+    X_test = df_test[['eps11', 'eps22', 'eps12']].to_numpy()
+    y_test = df_test['failed'].to_numpy(dtype=np.int32)
+
     N = len(y_train)
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
