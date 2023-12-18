@@ -16,7 +16,6 @@ if __name__ == "__main__":
     python_results_file_name = python_file_name_no_ext[3:]
 
     df = pd.read_csv(RESULTS_DIR / f"{python_results_file_name}.csv")
-    # df.columns = ["param_C", "mean_test_score", "std_test_score", "architecture", "trained"]
 
     # Plot results with seaborn
     sns.set_theme(style="whitegrid")
@@ -24,15 +23,15 @@ if __name__ == "__main__":
     sns.set_palette("colorblind")
     sns.set_style("ticks")
 
-    # Create subplots for each architecture
+    # Create subplots for each embedding
     fig, axes = plt.subplots(
-        1, len(df["architecture"].unique()), figsize=(12, 6), sharey=True)
+        2, 3, figsize=(12, 12), sharex=True, sharey=True)
 
-    for i, architecture in enumerate(df["architecture"].unique()):
-        ax = axes[i]
+    for i, embedding in enumerate(["he2w3d2", "he2w3d3", "he2w3d4", "he2w6d2", "he2w6d3", "he2w6d4"]):
+        ax = axes[i // 3, i % 3]
 
-        # Filter data for the current architecture
-        architecture_data = df[df["architecture"] == architecture]
+        # Filter data for the current embedding
+        embedding_data = df[df["embedding_name"] == embedding]
 
         # Plot for "random" data
         sns.lineplot(
@@ -40,22 +39,22 @@ if __name__ == "__main__":
             y="mean_test_score",
             hue="trained",
             style="trained",
-            hue_order=["random", "trained"],
-            style_order=["random", "trained"],
+            hue_order=[False, True],
+            style_order=[False, True],
             markers=True,
             dashes=False,
             legend="brief",
-            data=architecture_data,
+            data=embedding_data,
             ax=ax
         )
         ax.set_xscale("log")
-        ax.set_title(f"{architecture}")
+        ax.set_title(f"{embedding}")
         ax.set_xlabel("C")
         ax.set_ylabel("Test accuracy")
 
         # Remove titles in legends
         handles, labels = ax.get_legend_handles_labels()
-        ax.legend(handles=handles[:], labels=labels[:])
+        ax.legend(handles=handles[:], labels=["Random", "Trained"])
 
     plt.tight_layout()
     plt.savefig(GRAPHICS_DIR / f"{python_file_name_no_ext}.pdf")
