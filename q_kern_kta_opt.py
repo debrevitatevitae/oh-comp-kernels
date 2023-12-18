@@ -60,8 +60,8 @@ if __name__ == '__main__':
     df = pd.DataFrame(columns=columns)
 
     # define the embedding kernel (with JAX)
-    num_qubits = 3
-    num_layers = 2
+    num_qubits = 6
+    num_layers = 4
     wires = list(range(num_qubits))
     dev = qml.device('default.qubit.jax', wires=num_qubits)
 
