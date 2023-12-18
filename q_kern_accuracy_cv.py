@@ -18,46 +18,6 @@ from utils import load_split_data
 jax.config.update('jax_enable_x64', False)
 
 
-class GridSearchCVCustom():
-    def __init__(self, estimator, param_grid, batch_size=10, cv=5, n_jobs=1) -> None:
-        self.estimator = estimator
-        self.param_grid = param_grid  # assumed to be a 1d list of `C` values
-        self.batch_size = batch_size
-        self.cv = cv
-        self.n_jobs = n_jobs
-
-    def fit(self, X, y):
-
-        def batch_iterator(array1, array2):
-            # Ensure array1 and array2 have the same length
-            assert len(array1) == len(array2)
-
-            for start in range(0, len(array1), self.batch_size):
-                end = start + self.batch_size
-                yield array1[start:end], array2[start:end]
-
-        self.cv_results_ = {
-            "param_C": [],
-            "mean_test_score": [],
-            "std_test_score": []
-        }
-
-        for param_C in self.param_grid:
-            print(f"C={param_C:e}")
-            test_scores = np.array([])
-            estimator = self.estimator.set_params(C=param_C)
-            for X_batch, y_batch in batch_iterator(X, y):
-                # exclude very small batches
-                if len(y_batch) > self.cv:
-                    batch_cv_scores = cross_val_score(
-                        estimator, X_batch, y_batch, cv=self.cv, n_jobs=self.n_jobs, verbose=3)
-                    test_scores = np.append(test_scores, batch_cv_scores)
-
-            self.cv_results_["param_C"].append(param_C)
-            self.cv_results_["mean_test_score"].append(np.mean(test_scores))
-            self.cv_results_["std_test_score"].append(np.std(test_scores))
-
-
 def layer(x, params, wires, i0=0, inc=1):
     """Taken from https://github.com/thubregtsen/qhack"""
     i = i0
