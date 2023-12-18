@@ -13,7 +13,6 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.svm import SVC
 from project_directories import PICKLE_DATA_DIR, PROC_DATA_DIR, RESULTS_DIR
 
-from utils import load_split_data
 
 jax.config.update('jax_enable_x64', False)
 
