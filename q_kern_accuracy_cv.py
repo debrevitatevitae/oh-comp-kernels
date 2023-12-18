@@ -8,10 +8,10 @@ from jax import numpy as jnp
 import numpy as np
 import pandas as pd
 import pennylane as qml
-from sklearn.model_selection import GridSearchCV, cross_val_score
+from sklearn.model_selection import GridSearchCV, cross_val_score, train_test_split
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.svm import SVC
-from project_directories import PICKLE_DATA_DIR, RESULTS_DIR
+from project_directories import PICKLE_DATA_DIR, PROC_DATA_DIR, RESULTS_DIR
 
 from utils import load_split_data
 
@@ -84,26 +84,26 @@ if __name__ == '__main__':
     key = jax.random.PRNGKey(42)
 
     # data loading, splitting, and scaling
-    X_train, X_test, y_train, y_test = load_split_data(test_size=0.2)
-    num_samples = len(y_train)
+    df_data = pd.read_csv(PROC_DATA_DIR / 'data_labeled.csv')
+    df_train, _ = train_test_split(df_data, train_size=0.1)
+    X_train = df_train[['eps11', 'eps22', 'eps12']].to_numpy()
+    y_train = df_train['failed'].to_numpy(dtype=np.int32)
+
     scaler = MinMaxScaler(feature_range=(0, np.pi))
     X_train_scaled = scaler.fit_transform(X_train)
-    X_test_scaled = scaler.transform(X_test)
 
     # convert the data into jax.numpy array
     X_train_scaled = jnp.array(X_train_scaled)
     y_train = jnp.array(y_train)
-    X_test_scaled = jnp.array(X_test_scaled)
-    y_test = jnp.array(y_test)
 
     # define the embedding kernel (with JAX)
-    num_qubits = 3
-    num_layers = 2
+    num_qubits = 6
+    num_layers = 4
     wires = list(range(num_qubits))
     dev = qml.device('default.qubit.jax', wires=num_qubits)
 
     # random params or load them from pkl file
-    load_params = False
+    load_params = True
 
     if load_params:
         with open(PICKLE_DATA_DIR / f"q_kern_kta_opt_he2w{num_qubits}d{num_layers}.pkl", 'rb') as params_file:
