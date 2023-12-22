@@ -44,5 +44,5 @@ run-all:
 # Clean up everything in data/pickle, results and graphics directories
 clean:
 	@rm -rf $(DATA_DIR)/pickle/*
-	@rm -rf $(RESULTS_DIR)/*
-	@rm -rf graphics/*
+	@find $(RESULTS_DIR) -type f ! -name '.gitkeep' -delete
+	@find graphics -type f ! -name '.gitkeep' -delete
