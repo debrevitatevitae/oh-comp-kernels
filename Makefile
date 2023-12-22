@@ -7,7 +7,7 @@ PIP = $(VENV)/bin/pip
 PYTHON_FILES := $(wildcard *.py)
 REQUIREMENTS_FILE = requirements.txt
 DATA_DIR = data
-OUTPUT_DIR = output
+RESULTS_DIR = results
 
 # Targets
 .PHONY: all install run clean
@@ -41,6 +41,8 @@ run-all:
 		$(PYTHON) $$file; \
 	done
 
+# Clean up everything in data/pickle, results and graphics directories
 clean:
-	@rm -rf $(OUTPUT_DIR)/*
-
+	@rm -rf $(DATA_DIR)/pickle/*
+	@rm -rf $(RESULTS_DIR)/*
+	@rm -rf graphics/*
