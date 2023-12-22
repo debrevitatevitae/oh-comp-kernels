@@ -41,7 +41,7 @@ if __name__ == '__main__':
     df = pd.DataFrame(columns=columns)
 
     # declare some training set sizes
-    train_sizes = [int(N * frac) for frac in np.arange(0.1, 1., 0.1)]
+    train_sizes = [int(N * frac) for frac in np.arange(0.1, 1.1, 0.1)]
     df["train_size"] = train_sizes
 
     # for each of the train sizes, repeat a training and compute the test accuracy
