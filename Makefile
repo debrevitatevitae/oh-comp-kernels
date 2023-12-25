@@ -8,6 +8,7 @@ PYTHON_FILES := $(wildcard *.py)
 REQUIREMENTS_FILE = requirements.txt
 DATA_DIR = data
 RESULTS_DIR = results
+GRAPHICS_DIR = graphics
 
 # Targets
 .PHONY: all install run clean
@@ -45,4 +46,4 @@ run-all:
 clean:
 	@rm -rf $(DATA_DIR)/pickle/*
 	@find $(RESULTS_DIR) -type f ! -name '.gitkeep' -delete
-	@find graphics -type f ! -name '.gitkeep' -delete
+		@find $(GRAPHICS_DIR) -type f ! -name '.gitkeep' -delete
