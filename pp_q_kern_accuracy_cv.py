@@ -19,15 +19,18 @@ if __name__ == "__main__":
 
     # Plot results with seaborn
     sns.set_theme(style="whitegrid")
-    sns.set_context("paper", font_scale=1.5)
+    sns.set_context("paper", font_scale=1.2)
     sns.set_palette("colorblind")
     sns.set_style("ticks")
 
     # Create subplots for each embedding
-    fig, axes = plt.subplots(
-        2, 3, figsize=(12, 12), sharex=True, sharey=True)
+    fig, axes = plt.subplots(4, 3, figsize=(
+        8.27, 11.69), sharex=True, sharey=True)
+    fig.text(0.5, 0.01, "C", ha='center')
+    fig.text(0.005, 0.5, "Mean validation accuracy",
+             va='center', rotation='vertical')
 
-    for i, embedding in enumerate(["he2w3d2", "he2w3d3", "he2w3d4", "he2w6d2", "he2w6d3", "he2w6d4"]):
+    for i, embedding in enumerate(["iqpw3d1", "iqpw3d2", "iqpw3d3", "iqpw4d1", "iqpw4d2", "iqpw4d3", "iqpw5d1", "iqpw5d2", "iqpw5d3", "iqpw6d1", "iqpw6d2", "iqpw6d3"]):
         ax = axes[i // 3, i % 3]
 
         # Filter data for the current embedding
@@ -37,44 +40,54 @@ if __name__ == "__main__":
         sns.lineplot(
             x="param_C",
             y="mean_test_score",
-            hue="trained",
-            style="trained",
-            hue_order=[False, True],
-            style_order=[False, True],
             markers=True,
             dashes=False,
-            legend="brief",
             data=embedding_data,
             ax=ax
         )
         ax.set_xscale("log")
         ax.set_title(f"{embedding}")
-        ax.set_xlabel("C")
-        ax.set_ylabel("Mean validation accuracy")
 
-        # Remove titles in legends
-        handles, labels = ax.get_legend_handles_labels()
-        ax.legend(handles=handles[:], labels=["Random", "Trained"])
+        # keep only 5 yticks
+        ax.yaxis.set_major_locator(plt.MaxNLocator(5))
+
+        # set limit for y axis
+        ax.set_ylim([0.5, 1])
+
+        # Reduce the number of decimal digits to 2
+        ax.yaxis.set_major_formatter(
+            plt.FuncFormatter(lambda x, _: f'{round(x, 2)}'))
+        ax.set_xlabel("")
+        ax.set_ylabel("")
+
+        # reduce font size of x and y ticks
+        ax.tick_params(axis='both', which='major', labelsize=10)
 
         # add an inset axis with a barplot of std_test_score
         inset_ax = ax.inset_axes([0.55, 0.05, 0.45, 0.45])
         sns.barplot(
             x="param_C",
             y="std_test_score",
-            hue="trained",
-            hue_order=[False, True],
             data=embedding_data,
             ax=inset_ax,
             width=0.6  # Adjust the width value as needed
         )
 
-        # decorate the inset axes
-        inset_ax.set_xlabel("")
+        # set limit for y axis
+        inset_ax.set_ylim([0, 0.05])
+
+        # remove labels and ticks from inset axis
+        inset_ax.set_xlabel("")  # Set x label
         inset_ax.set_xticklabels([])
-        inset_ax.set_ylabel("")
-        inset_ax.get_legend().remove()
+        inset_ax.set_ylabel("")  # Set y label
+
+        # reduce yticks to 5
         inset_ax.yaxis.set_major_locator(plt.MaxNLocator(5))
+
+        # reduce font size of y ticks
         inset_ax.tick_params(axis='y', labelsize=8)
+
+        # set title for inset axis
         inset_ax.set_title("Std val acc")
 
     plt.tight_layout()
