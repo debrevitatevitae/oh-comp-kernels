@@ -20,9 +20,7 @@ if __name__ == '__main__':
 
             # Extract parts of the filename
             parts = file.split('_')
-            df['embedding_name'] = parts[-2]
-            df['trained'] = True if parts[-1].split(
-                '.')[0] == "trained" else False
+            df['embedding_name'] = parts[-1].split('.')[0]
 
             # Append the DataFrame to the merged DataFrame
             merged_df = pd.concat([merged_df, df])
