@@ -16,25 +16,6 @@ from project_directories import PICKLE_DATA_DIR, PROC_DATA_DIR, RESULTS_DIR
 jax.config.update('jax_enable_x64', False)
 
 
-def layer(x, params, wires, i0=0, inc=1):
-    """Taken from https://github.com/thubregtsen/qhack"""
-    i = i0
-    for j, wire in enumerate(wires):
-        qml.Hadamard(wires=[wire])
-        qml.RZ(x[i % len(x)], wires=[wire])
-        i += inc
-        qml.RY(params[0, j], wires=[wire])
-
-    qml.broadcast(unitary=qml.CRZ, pattern="ring",
-                  wires=wires, parameters=params[1])
-
-
-def embedding(x, params, wires):
-    """Adapted from https://github.com/thubregtsen/qhack"""
-    for j, layer_params in enumerate(params):
-        layer(x, layer_params, wires, i0=j * len(wires))
-
-
 if __name__ == '__main__':
     start = time.time()
 
@@ -55,6 +36,13 @@ if __name__ == '__main__':
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
 
+    num_qubits = 4
+    # Match X_train_scaled.shape[1] to num_qubits by cycling the columns of X_train_scaled. Same for X_test_scaled.
+    X_train_scaled = np.hstack(
+        [X_train_scaled[:, i % X_train_scaled.shape[1]].reshape(-1, 1) for i in range(num_qubits)])
+    X_test_scaled = np.hstack(
+        [X_test_scaled[:, i % X_test_scaled.shape[1]].reshape(-1, 1) for i in range(num_qubits)])
+
     # convert the data into jax.numpy array
     X_train_scaled = jnp.array(X_train_scaled)
     y_train = jnp.array(y_train)
@@ -62,21 +50,17 @@ if __name__ == '__main__':
     y_test = jnp.array(y_test)
 
     # define the embedding kernel (with JAX)
-    num_qubits = 6
-    num_layers = 4
+    num_layers = 1
     wires = list(range(num_qubits))
     dev = qml.device('default.qubit.jax', wires=num_qubits)
 
-    # load the optimal parameters
-    with open(PICKLE_DATA_DIR / f"q_kern_kta_opt_he2w{num_qubits}d{num_layers}.pkl", 'rb') as params_file:
-        params = pickle.load(params_file)
-
     @jax.jit
-    @qml.qnode(dev, interface="jax")
+    @qml.qnode(device=dev, interface="jax")
     def kernel(x1, x2):
-        """x1 and x2 must be JAX arrays"""
-        embedding(x1, params, wires)
-        qml.adjoint(embedding)(x2, params, wires)
+        """x1, x2 must be JAX arrays"""
+        qml.IQPEmbedding(x1, wires, n_repeats=num_layers, pattern=None)
+        qml.adjoint(qml.IQPEmbedding)(
+            x2, wires, n_repeats=num_layers, pattern=None)
         return qml.expval(qml.Projector([0]*num_qubits, wires=wires))
 
     # define the SVC, C=10.0 is the optimal hyperparameter
