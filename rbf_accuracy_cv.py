@@ -16,7 +16,7 @@ if __name__ == '__main__':
 
     # data loading, splitting and scaling
     df_data = pd.read_csv(PROC_DATA_DIR / 'data_labeled.csv')
-    df_train, _ = train_test_split(df_data, train_size=0.1)
+    df_train, _ = train_test_split(df_data, train_size=0.3)
     X_train = df_train[['eps11', 'eps22', 'eps12']].to_numpy()
     y_train = df_train['failed'].to_numpy(dtype=np.int32)
 
@@ -28,7 +28,7 @@ if __name__ == '__main__':
     gamma_opt = df_kta_opt["gamma"][df_kta_opt["kta"].argmax()]
 
     # Define the parameter grid for GridSearchCV
-    param_grid = {'C': np.logspace(-1, 5, 7),
+    param_grid = {'C': np.logspace(-1, 7, 9),
                   'gamma': [0.01, 0.1, gamma_opt, 10., 100.]}
 
     # create SVC
