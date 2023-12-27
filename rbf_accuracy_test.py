@@ -36,13 +36,15 @@ if __name__ == '__main__':
     C_opt = df_cv_results["param_C"][idx_opt]
     gamma_opt = df_cv_results["param_gamma"][idx_opt]
 
-    # create pandas DataFrame to store results
-    columns = ["train_size", "mean_test_accuracy", "std_test_accuracy"]
-    df = pd.DataFrame(columns=columns)
+    print(f"Optimal C: {C_opt}")
+    print(f"Optimal gamma: {gamma_opt}")
+
+    # create a DataFrame for the results, which includes the training set size, mean test accuracy, the standard deviation of the test accuracy and the number of support vectors
+    df = pd.DataFrame(columns=[
+                      "train_size", "mean_test_accuracy", "std_test_accuracy", "n_support_vectors"])
 
     # declare some training set sizes
     train_sizes = [int(N * frac) for frac in np.arange(0.1, 1.1, 0.1)]
-    df["train_size"] = train_sizes
 
     # for each of the train sizes, repeat a training and compute the test accuracy
     num_reps = 10
@@ -57,8 +59,11 @@ if __name__ == '__main__':
             # fit the classifier
             clf.fit(X_train_scaled_selection, y_train_selection)
             accuracies.append(clf.score(X_test_scaled, y_test))
-        df.iloc[i, 1] = np.mean(accuracies)
-        df.iloc[i, 2] = np.std(accuracies)
+
+        df.loc[len(df)] = {"train_size": ts,
+                           "mean_test_accuracy": np.mean(accuracies),
+                           "std_test_accuracy": np.std(accuracies),
+                           "n_support_vectors": clf.n_support_.sum()}
 
     # save DataFrame to a csv file named after this Python file
     python_file_name = os.path.basename(__file__)
