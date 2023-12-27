@@ -64,7 +64,7 @@ if __name__ == '__main__':
         return qml.expval(qml.Projector([0]*num_qubits, wires=wires))
 
     # define the SVC, C=10.0 is the optimal hyperparameter
-    clf = SVC(kernel=partial(qml.kernels.kernel_matrix, kernel=kernel), C=100.0)
+    clf = SVC(kernel=partial(qml.kernels.kernel_matrix, kernel=kernel), C=10.0)
 
     # create pandas DataFrame to store results
     columns = ["train_size", "mean_test_accuracy", "std_test_accuracy"]
