@@ -28,7 +28,7 @@ if __name__ == '__main__':
     gamma_opt = df_kta_opt["gamma"][df_kta_opt["kta"].argmax()]
 
     # Define the parameter grid for GridSearchCV
-    param_grid = {'C': np.logspace(-1, 2, 4),
+    param_grid = {'C': np.logspace(-1, 5, 7),
                   'gamma': [0.01, 0.1, gamma_opt, 10., 100.]}
 
     # create SVC

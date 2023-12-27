@@ -15,19 +15,22 @@ if __name__ == "__main__":
     # [3:] removes the heading 'pp_'
     python_results_file_name = python_file_name_no_ext[3:]
 
-    df = pd.read_csv(RESULTS_DIR / f"{python_results_file_name}.csv")
+    df = pd.read_csv(RESULTS_DIR / f"{python_results_file_name}.csv", dtype={
+                     'param_C': float, 'param_gamma': float, 'mean_test_score': float, 'std_test_score': float})
 
     # Create a pivot table for better visualization
     pivot_table = df.pivot(
         index='param_C', columns='param_gamma', values='mean_test_score')
 
-    # Create a heatmap
+    # Create a heatmap of the pivot table with C and gamma on the axes, C in exponential notation
     plt.figure(figsize=(10, 8))
+    import matplotlib.ticker as ticker
+
     sns.heatmap(pivot_table, annot=True, fmt=".3f", cmap="viridis",
                 cbar_kws={'label': 'Mean Validation Score'},
                 xticklabels=pivot_table.columns.round(3),
-                yticklabels=pivot_table.index.round(3))
-    # plt.title('Grid Search Results: Mean Test Score for C and gamma')
+                yticklabels=[f"{i:1.1e}" for i in pivot_table.index])
+
     plt.xlabel('gamma')
     plt.ylabel('C')
     plt.savefig(GRAPHICS_DIR / f"{python_file_name_no_ext}.pdf")
