@@ -23,6 +23,16 @@ if __name__ == "__main__":
     ax.set_xlabel('Training set size')
     ax.set_ylabel('Test accuracy')
 
+    # Include an inset with the ratio of the number of support vectors to the training set size
+    ax2 = fig.add_axes([0.5, 0.2, 0.3, 0.3])  # Adjust the coordinates here
+    ax2.bar(df["train_size"], df["n_support_vectors"] /
+            df["train_size"], width=40)
+
+    # Format formulas as LaTeX formulas
+    plt.rcParams['text.usetex'] = True
+    ax2.set_xlabel(r'$N_{train}$')
+    ax2.set_ylabel(r'$N_{SV}/N_{train}$')
+
     plt.savefig(GRAPHICS_DIR / f"{python_file_name_no_ext}.pdf")
 
     exec_time = time.time() - start
