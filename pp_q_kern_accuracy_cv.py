@@ -87,9 +87,6 @@ if __name__ == "__main__":
         # reduce font size of y ticks
         inset_ax.tick_params(axis='y', labelsize=8)
 
-        # set title for inset axis
-        inset_ax.set_title("Std val acc")
-
     plt.tight_layout()
     plt.savefig(GRAPHICS_DIR / f"{python_file_name_no_ext}.pdf")
 
