@@ -9,9 +9,10 @@ REQUIREMENTS_FILE = requirements.txt
 DATA_DIR = data
 RESULTS_DIR = results
 GRAPHICS_DIR = graphics
+BACKUP_DIR = backup
 
 # Targets
-.PHONY: all install run clean
+.PHONY: all backup install run clean
 
 all: install run
 
@@ -41,6 +42,15 @@ run-all:
 	@for file in $(PYTHON_FILES); do \
 		$(PYTHON) $$file; \
 	done
+
+# backup everything in  results and graphics directories to backup directory (exclude .gitkeep files)
+backup:
+	@mkdir -p $(BACKUP_DIR)
+	@tar -czf $(BACKUP_DIR)/$(shell date +%Y%m%d_%H%M%S).tar.gz $(RESULTS_DIR)/* $(GRAPHICS_DIR)/*
+# if data/pickle is not empty, add it to the backup
+	@if [ -n "$(shell ls $(DATA_DIR)/pickle)" ]; then \
+		tar -czf $(BACKUP_DIR)/$(shell date +%Y%m%d_%H%M%S).tar.gz $(DATA_DIR)/pickle/*; \
+	fi
 
 # Clean up everything in data/pickle, results and graphics directories
 clean:
