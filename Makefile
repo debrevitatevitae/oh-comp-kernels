@@ -55,6 +55,6 @@ backup:
 
 # Clean up everything in data/pickle, results and graphics directories
 clean:
-	@rm -rf $(PICKLE_DIR)*
 	@find $(RESULTS_DIR) -type f ! -name '.gitkeep' -delete
-		@find $(GRAPHICS_DIR) -type f ! -name '.gitkeep' -delete
+	@find $(GRAPHICS_DIR) -type f ! -name '.gitkeep' -delete
+	@find $(PICKLE_DIR) -type f ! -name '.gitkeep' -delete
