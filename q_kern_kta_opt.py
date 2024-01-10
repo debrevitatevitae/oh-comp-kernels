@@ -11,7 +11,7 @@ import pandas as pd
 import pennylane as qml
 from sklearn.preprocessing import MinMaxScaler
 
-from project_directories import PICKLE_DATA_DIR, RESULTS_DIR
+from project_directories import PICKLE_DIR, RESULTS_DIR
 from utils import load_split_data
 
 jax.config.update('jax_enable_x64', False)
@@ -181,7 +181,7 @@ if __name__ == '__main__':
               f'{python_file_name_no_ext}_0{num_qubits}0{num_layers}.csv', index=False)
 
     # pickle the best parameters
-    with open(PICKLE_DATA_DIR / f'{python_file_name_no_ext}_0{num_qubits}0{num_layers}.pkl', 'wb') as f:
+    with open(PICKLE_DIR / f'{python_file_name_no_ext}_0{num_qubits}0{num_layers}.pkl', 'wb') as f:
         pickle.dump(best_params, f)
 
     exec_time = time.time() - start

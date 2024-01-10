@@ -10,6 +10,7 @@ DATA_DIR = data
 RESULTS_DIR = results
 GRAPHICS_DIR = graphics
 BACKUP_DIR = backup
+PICKLE_DIR = pickle
 
 # Targets
 .PHONY: all backup install run clean
@@ -48,12 +49,12 @@ backup:
 	@mkdir -p $(BACKUP_DIR)
 	@tar -czf $(BACKUP_DIR)/$(shell date +%Y%m%d_%H%M%S).tar.gz $(RESULTS_DIR)/* $(GRAPHICS_DIR)/*
 # if data/pickle is not empty, add it to the backup
-	@if [ -n "$(shell ls $(DATA_DIR)/pickle)" ]; then \
-		tar -czf $(BACKUP_DIR)/$(shell date +%Y%m%d_%H%M%S).tar.gz $(DATA_DIR)/pickle/*; \
+	@if [ -n "$(shell ls $(PICKLE_DIR))" ]; then \
+		tar -czf $(BACKUP_DIR)/$(shell date +%Y%m%d_%H%M%S).tar.gz $(PICKLE_DIR)*; \
 	fi
 
 # Clean up everything in data/pickle, results and graphics directories
 clean:
-	@rm -rf $(DATA_DIR)/pickle/*
+	@rm -rf $(PICKLE_DIR)*
 	@find $(RESULTS_DIR) -type f ! -name '.gitkeep' -delete
 		@find $(GRAPHICS_DIR) -type f ! -name '.gitkeep' -delete
