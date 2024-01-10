@@ -74,8 +74,8 @@ if __name__ == '__main__':
     df = pd.DataFrame(columns=columns)
 
     # define the embedding kernel (with JAX)
-    num_qubits = 6
-    num_layers = 4
+    num_qubits = 3
+    num_layers = 1
     wires = list(range(num_qubits))
     dev = qml.device('default.qubit.jax', wires=num_qubits)
 
@@ -121,8 +121,9 @@ if __name__ == '__main__':
         return key, X_train_scaled[idxs_batch], y_train[idxs_batch]
 
     # function to compute the average KTA loss every N epochs
+    # number of batches to average over for one loss evaluation
     num_batches_loss_eval = 500
-    batch_size_loss_eval = 10
+    batch_size_loss_eval = 5  # batch size for loss evaluation
 
     def compute_ave_kta_loss(key, params):
         ave_loss = 0.
@@ -136,11 +137,11 @@ if __name__ == '__main__':
     # initial parameters and optimizer initialization
     num_runs = 5
     num_epochs = 500
-    epochs_per_checkpoint = 50
+    epochs_per_checkpoint = 50  # print loss every N epochs
 
     best_kta = 0.
-    best_run = None
-    best_params = None
+    best_run = None  # index of the best optimization run
+    best_params = None  # parameters with the best kta
 
     for run in range(num_runs):
         print("New optimization run")
@@ -156,7 +157,6 @@ if __name__ == '__main__':
         # optimization loop with early stopping
 
         for ep in range(num_epochs):
-            # Every some epochs report loss value averaged over some batches
             if ep % epochs_per_checkpoint == 0 or ep+1 == num_epochs:
                 key, loss = compute_ave_kta_loss(key, params)
                 kta = -loss
