@@ -193,8 +193,6 @@ venv/
 
 data/raw/*
 !data/raw/.gitkeep
-data/pickle/*
-!data/pickle/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
 results/*
@@ -205,3 +203,4 @@ graphics/*
 test_*.py
 .DS_Store
 backup/
+pickle/
