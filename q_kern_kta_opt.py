@@ -9,20 +9,33 @@ import numpy as np
 import optax
 import pandas as pd
 import pennylane as qml
+from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 
-from project_directories import PICKLE_DIR, RESULTS_DIR
+from project_directories import PICKLE_DIR, PROC_DATA_DIR, RESULTS_DIR
 from utils import load_split_data
 
 jax.config.update('jax_enable_x64', False)
 
 
 def layer(x, params, wires, i0=0, inc=1):
-    """Taken from https://github.com/thubregtsen/qhack"""
+    """
+    Apply a layer of quantum operations to a set of qubits.
+
+    Args:
+        x (array-like): Input vector.
+        params (array-like): Array-like object containing the parameters for the quantum operations.
+        wires (list): List of qubits to apply the operations on.
+        i0 (int): Starting index for the input values. Default is 0.
+        inc (int): Increment value for the input index. Default is 1.
+
+    Returns:
+        None
+    """
     i = i0
     for j, wire in enumerate(wires):
         qml.Hadamard(wires=[wire])
-        qml.RZ(x[i % len(x)], wires=[wire])
+        qml.RZ(x[i % len(x)], wires=[wire])  # modulo to reuse the same x
         i += inc
         qml.RY(params[0, j], wires=[wire])
 
@@ -43,17 +56,18 @@ if __name__ == '__main__':
     key = jax.random.PRNGKey(42)
 
     # data loading, splitting, and scaling
-    X_train, X_test, y_train, y_test = load_split_data(test_size=0.2)
-    num_samples = len(y_train)
+    df_data = pd.read_csv(PROC_DATA_DIR / 'data_labeled.csv')
+    df_train, _ = train_test_split(df_data, train_size=0.2)
+    X_train = df_train[['eps11', 'eps22', 'eps12']].to_numpy()
+    y_train = df_train['failed'].to_numpy(dtype=np.int32)
+
     scaler = MinMaxScaler(feature_range=(0, np.pi))
     X_train_scaled = scaler.fit_transform(X_train)
-    X_test_scaled = scaler.transform(X_test)
 
     # convert the data into jax.numpy array
     X_train_scaled = jnp.array(X_train_scaled)
     y_train = jnp.array(y_train)
-    X_test_scaled = jnp.array(X_test_scaled)
-    y_test = jnp.array(y_test)
+    num_samples = len(y_train)
 
     # create pandas DataFrame to store results
     columns = ["run_id", "epoch", "kta"]
