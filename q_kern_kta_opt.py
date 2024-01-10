@@ -190,12 +190,13 @@ if __name__ == '__main__':
 
     # save DataFrame to a csv file named after this Python file
     python_file_name = os.path.basename(__file__)
-    python_file_name_no_ext = os.path.splitext(python_file_name)[0]
+    python_file_name_no_ext = os.path.splitext(
+        python_file_name)[0]  # remove extension
     df.to_csv(RESULTS_DIR /
-              f'{python_file_name_no_ext}_0{num_qubits}0{num_layers}.csv', index=False)
+              f'{python_file_name_no_ext}_qekw{num_qubits}d{num_layers}.csv', index=False)
 
     # pickle the best parameters
-    with open(PICKLE_DIR / f'{python_file_name_no_ext}_0{num_qubits}0{num_layers}.pkl', 'wb') as f:
+    with open(PICKLE_DIR / f'{python_file_name_no_ext}_qekw{num_qubits}d{num_layers}.pkl', 'wb') as f:
         pickle.dump(best_params, f)
 
     exec_time = time.time() - start
