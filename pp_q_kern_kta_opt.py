@@ -15,7 +15,8 @@ if __name__ == "__main__":
     python_file_name_no_ext = os.path.splitext(python_file_name)[0]
     # [3:] removes the heading 'pp_'
     python_results_file_name = python_file_name_no_ext[3:]
-    embedding_ids = ["he2" + f"w{i}d{j}" for i in [3, 6] for j in range(2, 5)]
+    embedding_ids = [
+        "he2" + f"w{i}d{j}" for i in range(3, 7) for j in range(1, 4)]
 
     fig, ax = plt.subplots(figsize=(10, 6))
 
