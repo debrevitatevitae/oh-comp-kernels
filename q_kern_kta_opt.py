@@ -13,40 +13,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 
 from project_directories import PICKLE_DIR, PROC_DATA_DIR, RESULTS_DIR
-from utils import load_split_data
+from quantum_embeddings import trainable_embedding
 
 jax.config.update('jax_enable_x64', False)
-
-
-def layer(x, params, wires, i0=0, inc=1):
-    """
-    Apply a layer of quantum operations to a set of qubits.
-
-    Args:
-        x (array-like): Input vector.
-        params (array-like): Array-like object containing the parameters for the quantum operations.
-        wires (list): List of qubits to apply the operations on.
-        i0 (int): Starting index for the input values. Default is 0.
-        inc (int): Increment value for the input index. Default is 1.
-
-    Returns:
-        None
-    """
-    i = i0
-    for j, wire in enumerate(wires):
-        qml.Hadamard(wires=[wire])
-        qml.RZ(x[i % len(x)], wires=[wire])  # modulo to reuse the same x
-        i += inc
-        qml.RY(params[0, j], wires=[wire])
-
-    qml.broadcast(unitary=qml.CRZ, pattern="ring",
-                  wires=wires, parameters=params[1])
-
-
-def embedding(x, params, wires):
-    """Adapted from https://github.com/thubregtsen/qhack"""
-    for j, layer_params in enumerate(params):
-        layer(x, layer_params, wires, i0=j * len(wires))
 
 
 if __name__ == '__main__':
@@ -75,7 +44,7 @@ if __name__ == '__main__':
 
     # define the embedding kernel (with JAX)
     num_qubits = 3
-    num_layers = 1
+    num_layers = 4
     wires = list(range(num_qubits))
     dev = qml.device('default.qubit.jax', wires=num_qubits)
 
@@ -83,8 +52,8 @@ if __name__ == '__main__':
     @qml.qnode(device=dev, interface="jax")
     def kernel(x1, x2, params):
         """x1, x2 and params must be JAX arrays"""
-        embedding(x1, params, wires)
-        qml.adjoint(embedding)(x2, params, wires)
+        trainable_embedding(x1, params, wires)
+        qml.adjoint(trainable_embedding)(x2, params, wires)
         return qml.expval(qml.Projector([0]*num_qubits, wires=wires))
 
     def kta_loss(params, X, y):
