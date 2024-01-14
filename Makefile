@@ -44,14 +44,10 @@ run-all:
 		$(PYTHON) $$file; \
 	done
 
-# backup everything in  results and graphics directories to backup directory (exclude .gitkeep files)
+# backup everything in results, graphics and pickle directories to backup directory with timestamp in name
 backup:
 	@mkdir -p $(BACKUP_DIR)
-	@tar -czf $(BACKUP_DIR)/$(shell date +%Y%m%d_%H%M%S).tar.gz $(RESULTS_DIR)/* $(GRAPHICS_DIR)/*
-# if data/pickle is not empty, add it to the backup
-	@if [ -n "$(shell ls $(PICKLE_DIR))" ]; then \
-		tar -czf $(BACKUP_DIR)/$(shell date +%Y%m%d_%H%M%S).tar.gz $(PICKLE_DIR)*; \
-	fi
+	@tar --exclude '*.gitkeep' -czf $(BACKUP_DIR)/backup-$(shell date +%Y%m%d-%H%M%S).tar.gz $(RESULTS_DIR) $(GRAPHICS_DIR) $(PICKLE_DIR)
 
 # Clean up everything in data/pickle, results and graphics directories
 clean:
