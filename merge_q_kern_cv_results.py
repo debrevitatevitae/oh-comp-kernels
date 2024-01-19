@@ -1,7 +1,7 @@
 import pandas as pd
 import os
 
-from project_directories import RESULTS_DIR
+from ohqk.project_directories import RESULTS_DIR
 import glob
 
 if __name__ == '__main__':

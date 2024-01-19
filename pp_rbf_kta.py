@@ -6,7 +6,7 @@ import numpy as np
 
 import pandas as pd
 
-from project_directories import RESULTS_DIR, GRAPHICS_DIR
+from ohqk.project_directories import RESULTS_DIR, GRAPHICS_DIR
 
 
 kta_full_train_set = 0.06969  # from rbf_kta.py

@@ -4,7 +4,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-from project_directories import RESULTS_DIR, GRAPHICS_DIR
+from ohqk.project_directories import RESULTS_DIR, GRAPHICS_DIR
 
 if __name__ == "__main__":
     start = time.time()

@@ -6,7 +6,7 @@ import pennylane as qml
 from pennylane import numpy as np
 from sklearn.preprocessing import StandardScaler
 
-from project_directories import RESULTS_DIR
+from ohqk.project_directories import RESULTS_DIR
 from ohqk.utils import load_split_data
 
 

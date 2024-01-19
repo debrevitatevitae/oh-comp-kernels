@@ -6,7 +6,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
-from project_directories import PROC_DATA_DIR, RESULTS_DIR
+from ohqk.project_directories import PROC_DATA_DIR, RESULTS_DIR
 
 
 if __name__ == '__main__':

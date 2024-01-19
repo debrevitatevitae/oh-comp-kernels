@@ -8,7 +8,7 @@ import pandas as pd
 import pennylane as qml
 from sklearn.preprocessing import MinMaxScaler
 
-from project_directories import RESULTS_DIR
+from ohqk.project_directories import RESULTS_DIR
 from ohqk.utils import load_split_data
 
 

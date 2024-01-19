@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-from project_directories import PROC_DATA_DIR
+from ohqk.project_directories import PROC_DATA_DIR
 
 
 def load_split_data(test_size=0.2):

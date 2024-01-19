@@ -11,7 +11,7 @@ import pennylane as qml
 from sklearn.model_selection import GridSearchCV, cross_val_score, train_test_split
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.svm import SVC
-from project_directories import PICKLE_DIR, PROC_DATA_DIR, RESULTS_DIR
+from ohqk.project_directories import PICKLE_DIR, PROC_DATA_DIR, RESULTS_DIR
 
 
 jax.config.update('jax_enable_x64', False)

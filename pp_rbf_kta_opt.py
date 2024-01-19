@@ -5,7 +5,7 @@ from matplotlib.ticker import FuncFormatter
 
 import pandas as pd
 
-from project_directories import RESULTS_DIR, GRAPHICS_DIR
+from ohqk.project_directories import RESULTS_DIR, GRAPHICS_DIR
 
 
 if __name__ == '__main__':

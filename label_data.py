@@ -5,7 +5,7 @@ import re
 
 import numpy as np
 
-from project_directories import RAW_DATA_DIR, PROC_DATA_DIR
+from ohqk.project_directories import RAW_DATA_DIR, PROC_DATA_DIR
 
 
 def get_file_names(dir=RAW_DATA_DIR, shuffle=True):

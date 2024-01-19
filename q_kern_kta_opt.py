@@ -12,7 +12,7 @@ import pennylane as qml
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 
-from project_directories import PICKLE_DIR, PROC_DATA_DIR, RESULTS_DIR
+from ohqk.project_directories import PICKLE_DIR, PROC_DATA_DIR, RESULTS_DIR
 from ohqk.quantum_embeddings import trainable_embedding
 
 jax.config.update('jax_enable_x64', False)
