@@ -13,7 +13,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 
 from project_directories import PICKLE_DIR, PROC_DATA_DIR, RESULTS_DIR
-from quantum_embeddings import trainable_embedding
+from ohqk.quantum_embeddings import trainable_embedding
 
 jax.config.update('jax_enable_x64', False)
 
@@ -44,7 +44,7 @@ if __name__ == '__main__':
 
     # define the embedding kernel (with JAX)
     num_qubits = 3
-    num_layers = 4
+    num_layers = 1
     wires = list(range(num_qubits))
     dev = qml.device('default.qubit.jax', wires=num_qubits)
 
