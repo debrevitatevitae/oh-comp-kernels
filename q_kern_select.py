@@ -9,7 +9,7 @@ import pennylane as qml
 from sklearn.preprocessing import MinMaxScaler
 
 from project_directories import RESULTS_DIR
-from utils import load_split_data
+from ohqk.utils import load_split_data
 
 
 jax.config.update('jax_enable_x64', False)

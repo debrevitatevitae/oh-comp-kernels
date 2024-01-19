@@ -10,7 +10,7 @@ from torch.utils.data import Dataset, DataLoader
 from sklearn.preprocessing import StandardScaler
 from project_directories import RESULTS_DIR
 
-from utils import load_split_data
+from ohqk.utils import load_split_data
 
 
 def rbf_kernel(x, y, gamma):
