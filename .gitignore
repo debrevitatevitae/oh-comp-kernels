@@ -204,3 +204,5 @@ test_*.py
 .DS_Store
 backup/
 pickle/
+
+TODO.md
