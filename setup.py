@@ -11,10 +11,12 @@ setup(
         'numpy',
         'pandas',
         'jax',
+        'jaxlib',
         'jaxopt',
         'optax',
         'pennylane',
         'scikit-learn',
+        'zenodo-get',
     ],
     extras_require={
         'plotting': ['matplotlib', 'seaborn'],
