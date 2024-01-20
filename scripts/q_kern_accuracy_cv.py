@@ -31,13 +31,14 @@ if __name__ == '__main__':
         description='Embedding type and trained flag')
     parser.add_argument('--embedding_type', type=str,
                         required=True, help='The type of the embedding')
-    parser.add_argument('--trained', type=bool, default=True,
+    parser.add_argument('--trained', action='store_true',
                         help='Whether the embedding has trained parameters or not')
     args = parser.parse_args()
 
     # Move the arguments to variables (for convenience only)
     trained = args.trained
     embedding_type = args.embedding_type
+    print(f"embedding_type: {embedding_type}, trained: {trained}")
 
     # data loading, splitting, and scaling
     df_data = pd.read_csv(PROC_DATA_DIR / 'data_labeled.csv')
