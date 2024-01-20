@@ -16,6 +16,9 @@ setup(
         'pennylane',
         'scikit-learn',
     ],
+    extras_require={
+        'plotting': ['matplotlib', 'seaborn'],
+    },
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',

@@ -1,5 +1,15 @@
 # Predicting open hole composite failure using classical- and quantum-kernel SVM
 
+## Installation
+To install the package library and all the necessary dependencies, navigate to the project directory and run
+```bash
+pip install -e .
+```
+Moreover, if you want to run the visualization scripts, also install the plotting dependencies with
+```bash
+pip install -e .[plotting]
+```
+
 ## Preliminaries
 ### Get the raw data
 Data is publicly available at the following link: https://zenodo.org/records/7409612.
