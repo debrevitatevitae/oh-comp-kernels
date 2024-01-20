@@ -1,3 +1,4 @@
+import argparse
 from functools import partial
 import os
 import pickle
@@ -22,11 +23,21 @@ jax.config.update('jax_enable_x64', False)
 if __name__ == '__main__':
     start = time.time()
 
-    # whethere the embedding has trained parameters or not
-    trained = True
-
     np.random.seed(42)
     key = jax.random.PRNGKey(42)
+
+    # Take the embedding type and the trained flag as command line arguments. The embedding type can be either 'he2' or 'iqp'.
+    parser = argparse.ArgumentParser(
+        description='Embedding type and trained flag')
+    parser.add_argument('--embedding_type', type=str,
+                        required=True, help='The type of the embedding')
+    parser.add_argument('--trained', type=bool, default=True,
+                        help='Whether the embedding has trained parameters or not')
+    args = parser.parse_args()
+
+    # Move the arguments to variables (for convenience only)
+    trained = args.trained
+    embedding_type = args.embedding_type
 
     # data loading, splitting, and scaling
     df_data = pd.read_csv(PROC_DATA_DIR / 'data_labeled.csv')
@@ -59,16 +70,33 @@ if __name__ == '__main__':
             wires = list(range(num_qubits))
             dev = qml.device('default.qubit.jax', wires=num_qubits)
 
-            if trained:
-                # the embedding is an HEA and we load the trained parameters
-                with open(PICKLE_DIR / f"q_kern_kta_opt_he2w{num_qubits}d{num_layers}.pkl", 'rb') as f:
-                    params = pickle.load(f)
+            embedding = None
 
-                embedding = partial(trainable_embedding, params=params)
-            else:
-                # the embedding is IQP, which is not trainable
-                embedding = partial(
-                    qml.IQPEmbedding, n_repeats=num_layers, pattern=None)
+            # define the embedding and possible parameters based on the embedding_type and trained flag
+            match embedding_type, trained:
+                case "he2", False:
+                    # generate random parameters for HEA embedding
+                    _, key = jax.random.split(key)
+                    params = jax.random.uniform(
+                        key, minval=0., maxval=2*jnp.pi, shape=(num_layers, 2, num_qubits))
+
+                    embedding = partial(trainable_embedding, params=params)
+                case "he2", True:
+                    # load trained parameters for HEA embedding
+                    pickle_file = PICKLE_DIR / \
+                        f"q_kern_kta_opt_he2w{num_qubits}d{num_layers}.pkl"
+                    with open(pickle_file, 'rb') as f:
+                        params = pickle.load(f)
+                    embedding = partial(trainable_embedding, params=params)
+                case "iqp":
+                    # use IQP embedding
+                    embedding = partial(
+                        qml.IQPEmbedding, n_repeats=num_layers, pattern=None)
+                case _:
+                    # return an error for invalid embedding_type and trained flag values
+                    error_msg = f"Invalid embedding_type: {embedding_type} (possible values are 'he2' and 'iqp') or"
+                    error_msg += f"\ninvalid trained flag: {trained}(possible values are True and False)."
+                    raise ValueError(error_msg)
 
             @jax.jit
             @qml.qnode(device=dev, interface="jax")
@@ -84,7 +112,7 @@ if __name__ == '__main__':
 
             # create a GridSearchCV and fit to the data and limit the time for each fit to 10 minutes
             grid_search = GridSearchCV(
-                svc, cv_param_grid, cv=5, n_jobs=7, verbose=3)
+                svc, cv_param_grid, cv=5, n_jobs=4, verbose=3)
 
             grid_search.fit(X_train_scaled, y_train)
 
