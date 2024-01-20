@@ -50,7 +50,7 @@ if __name__ == '__main__':
 
     # Define the parameter grid for GridSearchCV
     cv_param_grid = {
-        "C": np.logspace(-1, 5, 7)
+        "C": np.logspace(-1, 4, 6)
     }
 
     for num_qubits in range(3, 7):
@@ -122,7 +122,7 @@ if __name__ == '__main__':
             python_file_name = os.path.basename(__file__)
             python_file_name_no_ext = os.path.splitext(python_file_name)[0]
             results_file_name = python_file_name_no_ext + \
-                f"_he2w{num_qubits}d{num_layers}"
+                f"_{embedding_type}w{num_qubits}d{num_layers}_trained_{trained}"
             df_results.to_csv(
                 RESULTS_DIR / f'{results_file_name}.csv', index=False)
 
