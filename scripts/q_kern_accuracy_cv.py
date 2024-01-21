@@ -11,10 +11,10 @@ import pandas as pd
 import pennylane as qml
 from sklearn.model_selection import GridSearchCV, cross_val_score, train_test_split
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.svm import SVC
 
 from ohqk.project_directories import PICKLE_DIR, PROC_DATA_DIR, RESULTS_DIR
 from ohqk.quantum_embeddings import trainable_embedding
+from ohqk.svc import TimedSVC
 
 
 jax.config.update('jax_enable_x64', False)
@@ -107,13 +107,14 @@ if __name__ == '__main__':
                 qml.adjoint(embedding)(x2, wires=wires)
                 return qml.expval(qml.Projector([0]*num_qubits, wires=wires))
 
-            # create SVC
-            svc = SVC(kernel=partial(qml.kernels.kernel_matrix,
-                      kernel=kernel), cache_size=1000)
+            # create SVC with a timeout of 10 minutes
+            TimedSVC.timeout = 10 * 60
+            svc = TimedSVC(kernel=partial(qml.kernels.kernel_matrix,
+                                          kernel=kernel), cache_size=1000)
 
             # create a GridSearchCV and fit to the data and limit the time for each fit to 10 minutes
             grid_search = GridSearchCV(
-                svc, cv_param_grid, cv=5, n_jobs=4, verbose=3)
+                svc, cv_param_grid, cv=5, n_jobs=-3, verbose=3, error_score=np.nan)
 
             grid_search.fit(X_train_scaled, y_train)
 
