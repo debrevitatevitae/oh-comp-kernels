@@ -52,7 +52,7 @@ if __name__ == '__main__':
 
     # Define the parameter grid for GridSearchCV
     cv_param_grid = {
-        "C": np.logspace(-1, 4, 6)
+        "C": np.logspace(-1, 3, 5)
     }
 
     for num_qubits in range(3, 7):
@@ -110,7 +110,7 @@ if __name__ == '__main__':
 
             # create SVC with a timeout of 10 minutes
             svc = SVC(kernel=partial(qml.kernels.kernel_matrix,
-                                     kernel=kernel), tol=1e-2, shrinking=False, cache_size=1000)
+                                     kernel=kernel), tol=1e-3, shrinking=True, cache_size=1000)
 
             # create a GridSearchCV and fit to the data and limit the time for each fit to 10 minutes
             df_results = run_grid_search_cv(X_train_scaled, y_train, svc,
