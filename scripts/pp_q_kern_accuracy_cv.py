@@ -5,34 +5,19 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 from ohqk.project_directories import RESULTS_DIR, GRAPHICS_DIR
+from ohqk.utils import find_order_concatenate_cv_result_files
 
 
 if __name__ == "__main__":
     start = time.time()
 
-    # Load the results files for the 3 different embeddings
-    results_iqp_files = [
-        f for f in os.listdir(RESULTS_DIR)
-        if "iqp" in f and f.endswith(".csv")
-    ]
-    results_he2_untrained_files = [
-        f for f in os.listdir(RESULTS_DIR)
-        if "he2" in f and "trained_False" in f and f.endswith(".csv")
-    ]
-    results_he2_trained_files = [
-        f for f in os.listdir(RESULTS_DIR)
-        if "he2" in f and "trained_True" in f and f.endswith(".csv")
-    ]
-
-    # Concatenate the results files into one list
-    results_files = results_iqp_files + \
-        results_he2_untrained_files + results_he2_trained_files
+    results_files = find_order_concatenate_cv_result_files()
 
     # Define a color palette in seaborn, made of shades of the same color for each embedding
     # This will be used to color the different scatterplot points
-    palette = sns.color_palette("Reds", len(results_iqp_files)) + \
-        sns.color_palette("Blues", len(results_he2_untrained_files)) + \
-        sns.color_palette("Greens", len(results_he2_trained_files))
+    palette = sns.color_palette("Reds", len(results_files) // 3) + \
+        sns.color_palette("Blues", len(results_files) // 3) + \
+        sns.color_palette("Greens", len(results_files) // 3)
 
     # Creare a figure and axes
     fig, ax = plt.subplots(figsize=(8, 6))
