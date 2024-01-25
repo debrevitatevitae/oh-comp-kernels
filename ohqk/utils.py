@@ -49,46 +49,32 @@ def load_split_data(test_size=0.2):
     return X_train, X_test, y_train, y_test
 
 
+def find_and_sort_files(embedding, trained=None):
+    """Finds and sorts files based on the given embedding and trained status."""
+    if trained is None:
+        files = [f for f in os.listdir(
+            RESULTS_DIR) if embedding in f and f.endswith(".csv")]
+    else:
+        files = [f for f in os.listdir(
+            RESULTS_DIR) if embedding in f and f"trained_{trained}" in f and f.endswith(".csv")]
+
+    # for all the previous list, search for the string "wxdy", where x and y are integers and sort the list first by x and then by y
+    sorted_files = sorted(
+        files,
+        key=lambda f: (
+            int(f[f.find("w") + 1:f.find("w") + 2]),
+            int(f[f.find("d") + 1:f.find("d") + 2]),
+        ),
+    )
+
+    return sorted_files
+
+
 def find_order_concatenate_cv_result_files():
-    """For each emebedding, finds the related cross-validation results files, then orders them by qubit count and number of layers and finally concatenates them into a single list and returns the list."""
-    results_iqp_files = [
-        f for f in os.listdir(RESULTS_DIR)
-        if "iqp" in f and f.endswith(".csv")
-    ]
-    # for all the previous list, search for the string "wxdy", where x and y are integers and sort the list first by x and then by y
-    results_iqp_files = sorted(
-        results_iqp_files,
-        key=lambda f: (
-            int(f[f.find("w") + 1:f.find("w") + 2]),
-            int(f[f.find("d") + 1:f.find("d") + 2]),
-        ),
-    )
-
-    results_he2_untrained_files = [
-        f for f in os.listdir(RESULTS_DIR)
-        if "he2" in f and "trained_False" in f and f.endswith(".csv")
-    ]
-    # for all the previous list, search for the string "wxdy", where x and y are integers and sort the list first by x and then by y
-    results_he2_untrained_files = sorted(
-        results_he2_untrained_files,
-        key=lambda f: (
-            int(f[f.find("w") + 1:f.find("w") + 2]),
-            int(f[f.find("d") + 1:f.find("d") + 2]),
-        ),
-    )
-
-    results_he2_trained_files = [
-        f for f in os.listdir(RESULTS_DIR)
-        if "he2" in f and "trained_True" in f and f.endswith(".csv")
-    ]
-    # for all the previous list, search for the string "wxdy", where x and y are integers and sort the list first by x and then by y
-    results_he2_trained_files = sorted(
-        results_he2_trained_files,
-        key=lambda f: (
-            int(f[f.find("w") + 1:f.find("w") + 2]),
-            int(f[f.find("d") + 1:f.find("d") + 2]),
-        ),
-    )
+    """For each embedding, finds the related cross-validation results files, then orders them by qubit count and number of layers and finally concatenates them into a single list and returns the list."""
+    results_iqp_files = find_and_sort_files("iqp")
+    results_he2_untrained_files = find_and_sort_files("he2", False)
+    results_he2_trained_files = find_and_sort_files("he2", True)
 
     results_files = results_iqp_files + \
         results_he2_untrained_files + results_he2_trained_files
