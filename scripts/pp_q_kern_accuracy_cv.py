@@ -13,14 +13,17 @@ if __name__ == "__main__":
 
     results_files = find_order_concatenate_cv_result_files()
 
+    embedding_types = ["iqp", "he2_untrained", "he2_trained"]
+    num_architectures = len(results_files) // 3
+
     # Define a color palette in seaborn, made of shades of the same color for each embedding
     # This will be used to color the different scatterplot points
-    palette = sns.color_palette("Reds", len(results_files) // 3) + \
-        sns.color_palette("Blues", len(results_files) // 3) + \
-        sns.color_palette("Greens", len(results_files) // 3)
+    palette = sns.color_palette("Reds", num_architectures) + \
+        sns.color_palette("Blues", num_architectures) + \
+        sns.color_palette("Greens", num_architectures)
 
     # Creare a figure and axes
-    fig, ax = plt.subplots(figsize=(8, 6))
+    fig, axs = plt.subplots(1, 3, figsize=(10, 7), sharey=True)
 
     # Loop over the results files and plot the mean test scores in a seaborn scatterplot
     for i, results_file in enumerate(results_files):
@@ -32,10 +35,15 @@ if __name__ == "__main__":
             x="param_C",
             y="mean_test_score",
             color=palette[i],
-            ax=ax,
+            ax=axs[i // num_architectures],
             # label=architecture,
         )
-        ax.set(xscale="log")  # Set x-axis to logarithmic scale
+
+    for i in range(3):
+        # Set x-axis to logarithmic scale
+        axs[i].set(xscale="log", title=embedding_types[i], ylim=(0.6, 0.9))
+
+    fig.tight_layout()
 
     # plt.legend(
     #     # the legend handles correspond to the first architecture of each embedding
