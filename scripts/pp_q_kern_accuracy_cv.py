@@ -1,26 +1,34 @@
 import os
 import time
+
+import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
-import matplotlib.pyplot as plt
 
-from ohqk.project_directories import RESULTS_DIR, GRAPHICS_DIR
+from ohqk.model_selection import find_best_scoring_embeddings
+from ohqk.project_directories import GRAPHICS_DIR, RESULTS_DIR
 from ohqk.utils import find_order_concatenate_cv_result_files
-
 
 if __name__ == "__main__":
     start = time.time()
 
     results_files = find_order_concatenate_cv_result_files()
 
-    embedding_types = ["iqp", "he2_untrained", "he2_trained"]
+    embedding_types = ["iqp", "he2_trained_False", "he2_trained_True"]
     num_architectures = len(results_files) // 3
+
+    # Find the best scoring embeddings for each embedding type
+    best_embeddings = find_best_scoring_embeddings(
+        results_files, embedding_types, save_to_csv=True
+    )
 
     # Define a color palette in seaborn, made of shades of the same color for each embedding
     # This will be used to color the different scatterplot points
-    palette = sns.color_palette("Reds", num_architectures) + \
-        sns.color_palette("Blues", num_architectures) + \
-        sns.color_palette("Greens", num_architectures)
+    palette = (
+        sns.color_palette("Reds", num_architectures)
+        + sns.color_palette("Blues", num_architectures)
+        + sns.color_palette("Greens", num_architectures)
+    )
 
     # Creare a figure and axes
     fig, axs = plt.subplots(1, 3, figsize=(10, 7), sharey=True)
@@ -62,7 +70,8 @@ if __name__ == "__main__":
     # Define the results file
     python_results_file_name = os.path.basename(__file__)
     python_results_file_name_no_ext = os.path.splitext(
-        python_results_file_name)[0]
+        python_results_file_name
+    )[0]
 
     plt.savefig(GRAPHICS_DIR / f"{python_results_file_name_no_ext}.pdf")
 
