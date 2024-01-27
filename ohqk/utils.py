@@ -95,14 +95,14 @@ def find_order_concatenate_cv_result_files():
     return results_files
 
 
-def get_info_from_results_file_name(results_file: str):
+def get_info_from_results_file_name(
+    results_file: str, embedding_names=["iqp", "he2_untrained", "he2_trained"]
+):
     """Given a results file name, returns the embedding type, the number of
     qubits and the number of layers."""
     # Use a regular expression to search in the file name for the embedding
-    # name, which can be "iqp", "he2_untrained" or "he2_trained"
-    embedding = re.search(
-        r"iqp|he2_untrained|he2_trained", results_file
-    ).group()
+    # name.
+    embedding = re.search("|".join(embedding_names), results_file).group()
     # Use a regular expression to search in the file name for the number of qubits and layers
     # The regular expression searches for the string "wxdy", where x and y are integers
     # and returns x and y as groups
