@@ -5,90 +5,66 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 from ohqk.project_directories import RESULTS_DIR, GRAPHICS_DIR
+from ohqk.utils import find_order_concatenate_cv_result_files
+
 
 if __name__ == "__main__":
     start = time.time()
 
-    # Load results into DataFrame
-    python_file_name = os.path.basename(__file__)
-    python_file_name_no_ext = os.path.splitext(python_file_name)[0]
-    # [3:] removes the heading 'pp_'
-    python_results_file_name = python_file_name_no_ext[3:]
+    results_files = find_order_concatenate_cv_result_files()
 
-    df = pd.read_csv(RESULTS_DIR / f"{python_results_file_name}.csv")
+    embedding_types = ["iqp", "he2_untrained", "he2_trained"]
+    num_architectures = len(results_files) // 3
 
-    # Plot results with seaborn
-    sns.set_theme(style="whitegrid")
-    sns.set_context("paper", font_scale=1.2)
-    sns.set_palette("colorblind")
-    sns.set_style("ticks")
+    # Define a color palette in seaborn, made of shades of the same color for each embedding
+    # This will be used to color the different scatterplot points
+    palette = sns.color_palette("Reds", num_architectures) + \
+        sns.color_palette("Blues", num_architectures) + \
+        sns.color_palette("Greens", num_architectures)
 
-    # Create subplots for each embedding
-    fig, axes = plt.subplots(4, 3, figsize=(
-        8.27, 11.69), sharex=True, sharey=True)
-    fig.text(0.5, 0.01, "C", ha='center')
-    fig.text(0.005, 0.5, "Mean validation accuracy",
-             va='center', rotation='vertical')
+    # Creare a figure and axes
+    fig, axs = plt.subplots(1, 3, figsize=(10, 7), sharey=True)
 
-    for i, embedding in enumerate(["iqpw3d1", "iqpw3d2", "iqpw3d3", "iqpw4d1", "iqpw4d2", "iqpw4d3", "iqpw5d1", "iqpw5d2", "iqpw5d3", "iqpw6d1", "iqpw6d2", "iqpw6d3"]):
-        ax = axes[i // 3, i % 3]
-
-        # Filter data for the current embedding
-        embedding_data = df[df["embedding_name"] == embedding]
-
-        # Plot for "random" data
-        sns.lineplot(
+    # Loop over the results files and plot the mean test scores in a seaborn scatterplot
+    for i, results_file in enumerate(results_files):
+        df = pd.read_csv(RESULTS_DIR / results_file)
+        # Get the architecture name from the file name
+        # architecture = results_file.split("_")[4]
+        sns.scatterplot(
+            data=df,
             x="param_C",
             y="mean_test_score",
-            markers=True,
-            dashes=False,
-            data=embedding_data,
-            ax=ax
-        )
-        ax.set_xscale("log")
-        ax.set_title(f"{embedding}")
-
-        # keep only 5 yticks
-        ax.yaxis.set_major_locator(plt.MaxNLocator(5))
-
-        # set limit for y axis
-        ax.set_ylim([0.5, 1])
-
-        # Reduce the number of decimal digits to 2
-        ax.yaxis.set_major_formatter(
-            plt.FuncFormatter(lambda x, _: f'{round(x, 2)}'))
-        ax.set_xlabel("")
-        ax.set_ylabel("")
-
-        # reduce font size of x and y ticks
-        ax.tick_params(axis='both', which='major', labelsize=10)
-
-        # add an inset axis with a barplot of std_test_score
-        inset_ax = ax.inset_axes([0.55, 0.05, 0.45, 0.45])
-        sns.barplot(
-            x="param_C",
-            y="std_test_score",
-            data=embedding_data,
-            ax=inset_ax,
-            width=0.6  # Adjust the width value as needed
+            color=palette[i],
+            ax=axs[i // num_architectures],
+            # label=architecture,
         )
 
-        # set limit for y axis
-        inset_ax.set_ylim([0, 0.05])
+    for i in range(3):
+        # Set x-axis to logarithmic scale
+        axs[i].set(xscale="log", title=embedding_types[i], ylim=(0.6, 0.9))
 
-        # remove labels and ticks from inset axis
-        inset_ax.set_xlabel("")  # Set x label
-        inset_ax.set_xticklabels([])
-        inset_ax.set_ylabel("")  # Set y label
+    fig.tight_layout()
 
-        # reduce yticks to 5
-        inset_ax.yaxis.set_major_locator(plt.MaxNLocator(5))
+    # plt.legend(
+    #     # the legend handles correspond to the first architecture of each embedding
+    #     handles=[ax.legend_.legendHandles[0], ax.legend_.legendHandles[len(
+    #         results_iqp_files)], ax.legend_.legendHandles[
+    #             len(results_iqp_files) + len(results_he2_untrained_files)
+    #     ],
+    #     ],
+    #     labels=["iqp", "he2_untrained", "he2_trained"],
+    #     # Adjust the y-coordinate to move the legend above the plot
+    #     bbox_to_anchor=(0.5, 1.15),
+    #     loc="upper center",
+    #     borderaxespad=0.,
+    # )
 
-        # reduce font size of y ticks
-        inset_ax.tick_params(axis='y', labelsize=8)
+    # Define the results file
+    python_results_file_name = os.path.basename(__file__)
+    python_results_file_name_no_ext = os.path.splitext(
+        python_results_file_name)[0]
 
-    plt.tight_layout()
-    plt.savefig(GRAPHICS_DIR / f"{python_file_name_no_ext}.pdf")
+    plt.savefig(GRAPHICS_DIR / f"{python_results_file_name_no_ext}.pdf")
 
     exec_time = time.time() - start
     minutes = int(exec_time // 60)
