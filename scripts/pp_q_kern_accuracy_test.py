@@ -1,10 +1,11 @@
 import os
 import time
+
+import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
-import matplotlib.pyplot as plt
 
-from ohqk.project_directories import RESULTS_DIR, GRAPHICS_DIR
+from ohqk.project_directories import GRAPHICS_DIR, RESULTS_DIR
 
 if __name__ == "__main__":
     start = time.time()
@@ -21,20 +22,37 @@ if __name__ == "__main__":
     python_results_file_name = python_file_name_no_ext[3:]
 
     q_df_1 = pd.read_csv(
-        RESULTS_DIR / f"{python_results_file_name}_{q_kerns_names[0]}.csv")
+        RESULTS_DIR / f"{python_results_file_name}_{q_kerns_names[0]}.csv"
+    )
     q_df_2 = pd.read_csv(
-        RESULTS_DIR / f"{python_results_file_name}_{q_kerns_names[1]}.csv")
+        RESULTS_DIR / f"{python_results_file_name}_{q_kerns_names[1]}.csv"
+    )
 
     fig, ax = plt.subplots(figsize=(8, 6))
-    ax.errorbar(rbf_df["train_size"], rbf_df["mean_test_accuracy"],
-                yerr=rbf_df["std_test_accuracy"], fmt='o', capsize=4)
-    ax.errorbar(q_df_1["train_size"], q_df_1["mean_test_accuracy"],
-                yerr=q_df_1["std_test_accuracy"], fmt='o', capsize=4)
-    ax.errorbar(q_df_2["train_size"], q_df_2["mean_test_accuracy"],
-                yerr=q_df_2["std_test_accuracy"], fmt='o', capsize=4)
-    ax.set_xlabel('Training set size')
-    ax.set_ylabel('Test accuracy')
-    ax.legend(['RBF', 'w3d2', 'w6d4'])
+    ax.errorbar(
+        rbf_df["train_size"],
+        rbf_df["mean_test_accuracy"],
+        yerr=rbf_df["std_test_accuracy"],
+        fmt="o",
+        capsize=4,
+    )
+    ax.errorbar(
+        q_df_1["train_size"],
+        q_df_1["mean_test_accuracy"],
+        yerr=q_df_1["std_test_accuracy"],
+        fmt="o",
+        capsize=4,
+    )
+    ax.errorbar(
+        q_df_2["train_size"],
+        q_df_2["mean_test_accuracy"],
+        yerr=q_df_2["std_test_accuracy"],
+        fmt="o",
+        capsize=4,
+    )
+    ax.set_xlabel("Training set size")
+    ax.set_ylabel("Test accuracy")
+    ax.legend(["RBF", "w3d2", "w6d4"])
 
     plt.savefig(GRAPHICS_DIR / f"{python_file_name_no_ext}.pdf")
 
