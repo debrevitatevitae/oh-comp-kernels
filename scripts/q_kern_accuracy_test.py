@@ -6,12 +6,10 @@ import jax
 import numpy as np
 import pandas as pd
 import pennylane as qml
-from jax import numpy as jnp
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler
 from sklearn.svm import SVC
 
-from ohqk.project_directories import PROC_DATA_DIR, RESULTS_DIR
+from ohqk.project_directories import RESULTS_DIR
+from ohqk.utils import load_split_scale_data, match_shape_to_num_qubits
 
 jax.config.update("jax_enable_x64", False)
 
@@ -23,39 +21,14 @@ if __name__ == "__main__":
     jax_key = jax.random.PRNGKey(42)
 
     # data loading, splitting, and scaling
-    df_data = pd.read_csv(PROC_DATA_DIR / "data_labeled.csv")
-    df_train, df_test = train_test_split(df_data, test_size=0.2)
-
-    X_train = df_train[["eps11", "eps22", "eps12"]].to_numpy()
-    y_train = df_train["failed"].to_numpy(dtype=np.int32)
-    X_test = df_test[["eps11", "eps22", "eps12"]].to_numpy()
-    y_test = df_test["failed"].to_numpy(dtype=np.int32)
-
-    N = len(y_train)
-    scaler = MinMaxScaler(feature_range=(0, np.pi))
-    X_train_scaled = scaler.fit_transform(X_train)
-    X_test_scaled = scaler.transform(X_test)
+    X_train_scaled, X_test_scaled, y_train, y_test = load_split_scale_data(
+        test_size=0.2, scale="angle", to_jax=True
+    )
 
     num_qubits = 4
-    # Match X_train_scaled.shape[1] to num_qubits by cycling the columns of X_train_scaled. Same for X_test_scaled.
-    X_train_scaled = np.hstack(
-        [
-            X_train_scaled[:, i % X_train_scaled.shape[1]].reshape(-1, 1)
-            for i in range(num_qubits)
-        ]
-    )
-    X_test_scaled = np.hstack(
-        [
-            X_test_scaled[:, i % X_test_scaled.shape[1]].reshape(-1, 1)
-            for i in range(num_qubits)
-        ]
-    )
-
-    # convert the data into jax.numpy array
-    X_train_scaled = jnp.array(X_train_scaled)
-    y_train = jnp.array(y_train)
-    X_test_scaled = jnp.array(X_test_scaled)
-    y_test = jnp.array(y_test)
+    # Match the shape of the input arrays to the number of qubits
+    X_train_scaled = match_shape_to_num_qubits(X_train_scaled, num_qubits)
+    X_test_scaled = match_shape_to_num_qubits(X_test_scaled, num_qubits)
 
     # define the embedding kernel (with JAX)
     num_layers = 1
