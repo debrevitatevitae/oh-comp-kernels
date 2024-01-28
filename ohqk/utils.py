@@ -1,51 +1,56 @@
 import os
 import re
 
+import jax.numpy as jnp
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 from ohqk.project_directories import PROC_DATA_DIR, RESULTS_DIR
 
 
-def load_split_data(test_size=0.2):
-    """Load and split open hole composite specimen labeled data .
+def load_split_scale_data(
+    test_size: float = 0.2, scale: str = "standard", to_jax: bool = "False"
+):
+    """Loads, splits, and scales the data. Returns the train and test sets.
 
-    Parameters
-    ----------
-    test_size : float, optional
-        The proportion of the dataset to include in the test split. Default is 0.2.
+    Args:
+        test_size (float, optional): The size of the test set. Defaults to 0.2.
+        scale (str, optional): The scaling method. If "standard", then the data is scaled using `sklearn.preprocessing.StandardScaler`, with 0 mean and unit variance. If "angle", then the data is scaled using `sklearn.preprocessing.MinMaxScaler`, with values in the range [0, pi]. Defaults to "standard".
+        to_jax (bool, optional): If True, then the data is converted to `jax.numpy` arrays. Defaults to False.
 
-    Returns
-    -------
-    tuple of ndarrays
-        A tuple containing four NumPy arrays:
-        - X_train: Training data with shape (n_train_samples, n_features).
-        - X_test: Testing data with shape (n_test_samples, n_features).
-        - y_train: Training labels with shape (n_train_samples,).
-        - y_test: Testing labels with shape (n_test_samples,).
-
-    Examples
-    --------
-    >>> X_train, X_test, y_train, y_test = load_split_data(test_size=0.25)
-    >>> X_train.shape, X_test.shape, y_train.shape, y_test.shape
-    ((800, 3), (200, 3), (800,), (200,))
-
-    Notes
-    -----
-    This function reads labeled data from a CSV file, extracts the features and labels,
-    and then splits the data into training and testing sets using `train_test_split` from
-    scikit-learn. The default test size is 0.2, but it can be adjusted using the `test_size` parameter.
+    Returns:
+        X_train, X_test, y_train, y_test: The train and test sets.
     """
-    df = pd.read_csv(PROC_DATA_DIR / "data_labeled.csv")
-    X = df[["eps11", "eps22", "eps12"]].to_numpy()
-    y = df["failed"].to_numpy(dtype=np.int32)
+    # data loading, splitting, and scaling
+    df_data = pd.read_csv(PROC_DATA_DIR / "data_labeled.csv")
+    df_train, df_test = train_test_split(df_data, test_size=test_size)
 
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=test_size
-    )
+    X_train = df_train[["eps11", "eps22", "eps12"]].to_numpy()
+    y_train = df_train["failed"].to_numpy(dtype=np.int32)
+    X_test = df_test[["eps11", "eps22", "eps12"]].to_numpy()
+    y_test = df_test["failed"].to_numpy(dtype=np.int32)
 
-    return X_train, X_test, y_train, y_test
+    if scale == "standard":
+        scaler = StandardScaler()
+    elif scale == "angle":
+        scaler = MinMaxScaler(feature_range=(0, np.pi))
+    else:
+        raise ValueError(
+            f"scale must be either 'standard' or 'angle', not {scale}"
+        )
+
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+
+    if to_jax:
+        X_train_scaled = jnp.array(X_train_scaled)
+        y_train = jnp.array(y_train)
+        X_test_scaled = jnp.array(X_test_scaled)
+        y_test = jnp.array(y_test)
+
+    return X_train_scaled, X_test_scaled, y_train, y_test
 
 
 def find_and_sort_files(embedding, trained=None):
