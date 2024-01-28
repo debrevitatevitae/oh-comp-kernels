@@ -53,6 +53,26 @@ def load_split_scale_data(
     return X_train_scaled, X_test_scaled, y_train, y_test
 
 
+def match_shape_to_num_qubits(X: np.ndarray | jnp.ndarray, num_qubits: int):
+    """Matches the shape of the given array to the given number of qubits by
+    cycling the columns of the array.
+
+    Args:
+        X (np.ndarray|jnp.ndarray): The array to be reshaped.
+        num_qubits (int): The number of qubits.
+
+    Returns:
+        np.ndarray|jnp.ndarray: The reshaped array.
+    """
+    X_extended = np.hstack(
+        [X[:, i % X.shape[1]].reshape(-1, 1) for i in range(num_qubits)]
+    )
+    if isinstance(X, jnp.ndarray):
+        X_extended = jnp.array(X_extended)
+
+    return X_extended
+
+
 def find_and_sort_files(embedding, trained=None):
     """Finds and sorts files based on the given embedding and trained
     status."""

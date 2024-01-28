@@ -5,7 +5,11 @@ import pytest
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
-from ohqk.utils import get_info_from_results_file_name, load_split_scale_data
+from ohqk.utils import (
+    get_info_from_results_file_name,
+    load_split_scale_data,
+    match_shape_to_num_qubits,
+)
 
 
 def test_load_split_scale_data(monkeypatch):
@@ -70,6 +74,40 @@ def test_load_split_scale_data(monkeypatch):
     assert isinstance(y_train, jnp.ndarray)
     assert isinstance(X_test, jnp.ndarray)
     assert isinstance(y_test, jnp.ndarray)
+
+
+def test_match_shape_to_num_qubits():
+    # Test case 1: np.ndarray input
+    X = np.array([[1, 2, 3], [4, 5, 6]])
+    num_qubits = 4
+    expected_output = np.array([[1, 2, 3, 1], [4, 5, 6, 4]])
+    assert np.array_equal(
+        match_shape_to_num_qubits(X, num_qubits), expected_output
+    )
+
+    # Test case 2: jnp.ndarray input
+    X = jnp.array([[1, 2, 3], [4, 5, 6]])
+    num_qubits = 3
+    expected_output = jnp.array([[1, 2, 3], [4, 5, 6]])
+    assert jnp.array_equal(
+        match_shape_to_num_qubits(X, num_qubits), expected_output
+    )
+
+    # Test case 3: np.ndarray input with more columns than num_qubits
+    X = np.array([[1, 2, 3], [4, 5, 6]])
+    num_qubits = 2
+    expected_output = np.array([[1, 2], [4, 5]])
+    assert np.array_equal(
+        match_shape_to_num_qubits(X, num_qubits), expected_output
+    )
+
+    # Test case 4: jnp.ndarray input with more columns than num_qubits
+    X = jnp.array([[1, 2, 3], [4, 5, 6]])
+    num_qubits = 1
+    expected_output = jnp.array([[1], [4]])
+    assert jnp.array_equal(
+        match_shape_to_num_qubits(X, num_qubits), expected_output
+    )
 
 
 def test_get_info_from_results_file_name():
