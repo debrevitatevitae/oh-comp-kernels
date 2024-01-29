@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 
 import matplotlib.pyplot as plt
@@ -10,49 +11,37 @@ from ohqk.project_directories import GRAPHICS_DIR, RESULTS_DIR
 if __name__ == "__main__":
     start = time.time()
 
-    # Load rbf results into DataFrame
+    # Load test accuracy results into DataFrame and merge into one
     rbf_results_file_name = "rbf_accuracy_test"
+    q_results_file_name = "q_kern_accuracy_test"
     rbf_df = pd.read_csv(RESULTS_DIR / f"{rbf_results_file_name}.csv")
+    q_df = pd.read_csv(RESULTS_DIR / f"{q_results_file_name}.csv")
+    # merge rbf_df and q_df
+    results_df = pd.concat([rbf_df, q_df])
 
-    # Load results into DataFrame
-    q_kerns_names = ["he2w3d2", "he2w6d4"]
+    # Make a barplot
+    sns.set_style("whitegrid")
+    sns.set_palette("colorblind")
+    sns.set_context("paper")
+    sns.set(font_scale=1.5)
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.barplot(
+        x="train_size",
+        y="mean_test_accuracy",
+        hue="kernel",
+        data=results_df,
+        ax=ax,
+    )
+
+    # Move the legend above the plot and reduce the font size.
+    ax.legend(
+        loc="upper center", bbox_to_anchor=(0.5, 1.15), ncol=5, fontsize=14
+    )
+
+    # Output file
     python_file_name = os.path.basename(__file__)
     python_file_name_no_ext = os.path.splitext(python_file_name)[0]
-    # [3:] removes the heading 'pp_'
-    python_results_file_name = python_file_name_no_ext[3:]
-
-    q_df_1 = pd.read_csv(
-        RESULTS_DIR / f"{python_results_file_name}_{q_kerns_names[0]}.csv"
-    )
-    q_df_2 = pd.read_csv(
-        RESULTS_DIR / f"{python_results_file_name}_{q_kerns_names[1]}.csv"
-    )
-
-    fig, ax = plt.subplots(figsize=(8, 6))
-    ax.errorbar(
-        rbf_df["train_size"],
-        rbf_df["mean_test_accuracy"],
-        yerr=rbf_df["std_test_accuracy"],
-        fmt="o",
-        capsize=4,
-    )
-    ax.errorbar(
-        q_df_1["train_size"],
-        q_df_1["mean_test_accuracy"],
-        yerr=q_df_1["std_test_accuracy"],
-        fmt="o",
-        capsize=4,
-    )
-    ax.errorbar(
-        q_df_2["train_size"],
-        q_df_2["mean_test_accuracy"],
-        yerr=q_df_2["std_test_accuracy"],
-        fmt="o",
-        capsize=4,
-    )
-    ax.set_xlabel("Training set size")
-    ax.set_ylabel("Test accuracy")
-    ax.legend(["RBF", "w3d2", "w6d4"])
 
     plt.savefig(GRAPHICS_DIR / f"{python_file_name_no_ext}.pdf")
 
