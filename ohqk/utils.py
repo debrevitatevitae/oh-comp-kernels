@@ -4,6 +4,7 @@ import re
 import jax.numpy as jnp
 import numpy as np
 import pandas as pd
+import torch
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
@@ -11,17 +12,22 @@ from ohqk.project_directories import PROC_DATA_DIR, RESULTS_DIR
 
 
 def load_split_scale_data(
-    test_size: float = 0.2, scale: str = "standard", to_jax: bool = "False"
+    test_size: float = 0.2,
+    scale: str = "standard",
+    to_torch: bool = False,
+    to_jax: bool = False,
 ):
-    """Loads, splits, and scales the data. Returns the train and test sets.
+    """
+    Loads, splits, and scales the data. Returns the train and test sets.
 
     Args:
         test_size (float, optional): The size of the test set. Defaults to 0.2.
         scale (str, optional): The scaling method. If "standard", then the data is scaled using `sklearn.preprocessing.StandardScaler`, with 0 mean and unit variance. If "angle", then the data is scaled using `sklearn.preprocessing.MinMaxScaler`, with values in the range [0, pi]. Defaults to "standard".
+        to_torch (bool, optional): If True, then the data is converted to `torch.Tensor` objects. Defaults to False.
         to_jax (bool, optional): If True, then the data is converted to `jax.numpy` arrays. Defaults to False.
 
     Returns:
-        X_train, X_test, y_train, y_test: The train and test sets.
+        tuple: A tuple containing the train and test sets in the following order: X_train, X_test, y_train, y_test.
     """
     # data loading, splitting, and scaling
     df_data = pd.read_csv(PROC_DATA_DIR / "data_labeled.csv")
@@ -43,6 +49,12 @@ def load_split_scale_data(
 
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
+
+    if to_torch:
+        X_train_scaled = torch.tensor(X_train_scaled, requires_grad=False)
+        y_train = torch.tensor(y_train, requires_grad=False)
+        X_test_scaled = torch.tensor(X_test_scaled, requires_grad=False)
+        y_test = torch.tensor(y_test, requires_grad=False)
 
     if to_jax:
         X_train_scaled = jnp.array(X_train_scaled)
