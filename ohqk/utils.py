@@ -11,6 +11,12 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from ohqk.project_directories import PROC_DATA_DIR, RESULTS_DIR
 
 
+def relabel_to_m1p1(
+    y: np.ndarray | jnp.ndarray | torch.Tensor,
+) -> np.ndarray | jnp.ndarray | torch.Tensor:
+    return 2 * y - 1
+
+
 def load_split_scale_data(
     test_size: float = 0.2,
     scale: str = "standard",
