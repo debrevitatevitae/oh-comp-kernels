@@ -157,3 +157,14 @@ def get_info_from_results_file_name(
         embedding = embedding + "_trained_" + trained
 
     return embedding, int(num_qubits), int(num_layers)
+
+
+def running_average_filter(points, factor=0.3):
+    smoothed_points = []
+    for point in points:
+        if smoothed_points:
+            previous = smoothed_points[-1]
+            smoothed_points.append(previous * factor + point * (1 - factor))
+        else:
+            smoothed_points.append(point)
+    return smoothed_points
