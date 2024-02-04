@@ -5,7 +5,8 @@ import re
 
 import numpy as np
 
-from ohqk.project_directories import RAW_DATA_DIR, PROC_DATA_DIR
+from ohqk.data import read_file_to_numpy_array
+from ohqk.project_directories import PROC_DATA_DIR, RAW_DATA_DIR
 
 
 def get_file_names(dir=RAW_DATA_DIR, shuffle=True):
@@ -38,66 +39,15 @@ def get_file_names(dir=RAW_DATA_DIR, shuffle=True):
     is set to True (default), the order of the file names in the returned list will be randomized.
 
     """
-    fnames = [f for f in os.listdir(dir) if f[:2] == 'Ea']
+    fnames = [f for f in os.listdir(dir) if f[:2] == "Ea"]
     if shuffle:
         random.shuffle(fnames)
     return fnames
 
 
-def read_file_to_numpy_array(filepath, dim_input=1):
-    """
-    Read data from a CSV file into a NumPy array and reshape it.
-
-    Parameters
-    ----------
-    filepath : str
-        The path to the CSV file containing the data.
-    dim_input : int, optional
-        The number of columns to consider as input features. Default is 1.
-
-    Returns
-    -------
-    tuple of ndarray
-        A tuple containing two NumPy arrays:
-        - The input data with shape (-1, dim_input).
-        - The labels (output) data with shape (-1, dim_output), where dim_output
-        is calculated as the total number of columns minus dim_input.
-
-    Examples
-    --------
-    >>> read_file_to_numpy_array('data.csv')
-    (array([[1.0],
-            [2.0],
-            ...]),
-     array([[0.5],
-            [1.5],
-            ...]))
-
-    >>> read_file_to_numpy_array('data.csv', dim_input=2)
-    (array([[1.0, 2.0],
-            [3.0, 4.0],
-            ...]),
-     array([[0.5],
-            [1.5],
-            ...]))
-
-    Notes
-    -----
-    This function reads data from a CSV file using NumPy's `genfromtxt` function.
-    It assumes that the input features are located in the first `dim_input` columns,
-    and the remaining columns are considered as output labels.
-    The resulting arrays are reshaped for compatibility with machine learning frameworks.
-
-    """
-    data = np.genfromtxt(filepath, dtype=np.float32,
-                         delimiter=',', skip_header=1)
-
-    dim_output = data.shape[1] - dim_input
-
-    return data[:, :dim_input].reshape(-1, dim_input), data[:, dim_input:].reshape(-1, dim_output)
-
-
-def sample_and_label(strains, stresses, max_loads, residual_stiffness=0.9, N_samples=10):
+def sample_and_label(
+    strains, stresses, max_loads, residual_stiffness=0.9, N_samples=10
+):
     """
     Randomly sample and label strains for binary classification based on loading curves.
 
@@ -161,7 +111,7 @@ def sample_and_label(strains, stresses, max_loads, residual_stiffness=0.9, N_sam
     return strains_samples, labels
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # define a seed and seed the generators for reproducibility
     seed = 42
     random.seed(seed)
@@ -170,17 +120,17 @@ if __name__ == '__main__':
     files = get_file_names()
 
     # take n samples from each file, label them and write to a csv file
-    with open(PROC_DATA_DIR / 'data_labeled.csv', 'w') as ff:
-        writer = csv.writer(ff, delimiter=',')
-        writer.writerow(['eps11', 'eps22', 'eps12', 'failed'])  # csv title row
+    with open(PROC_DATA_DIR / "data_labeled.csv", "w") as ff:
+        writer = csv.writer(ff, delimiter=",")
+        writer.writerow(["eps11", "eps22", "eps12", "failed"])  # csv title row
 
         for f in files:
-            max_loads = re.findall('-?[0-9]+', f)  # loads in the file name
+            max_loads = re.findall("-?[0-9]+", f)  # loads in the file name
             max_loads = [float(l) for l in max_loads]
             strains, stresses = read_file_to_numpy_array(
-                RAW_DATA_DIR / f, dim_input=3)
-            x, y = sample_and_label(
-                strains, stresses, max_loads)
+                RAW_DATA_DIR / f, dim_input=3
+            )
+            x, y = sample_and_label(strains, stresses, max_loads)
 
             # write to csv in the format: [xx[0], xx[1], xx[2]], y
             for xx, yy in zip(x, y):
