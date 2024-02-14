@@ -1,3 +1,0 @@
-# Scripts and notebooks to reproduce the paper's results
-- `rbf_kernel_multi_gamma.py`: plots the Radial Basis Functions kernel in 1D for multiple values of $\gamma$.
-- `rbf_kernel_kta_training_fine.py`: trains the KTA of the Radial Basis Functions kernel for a standard dataset with a small learning rate.
