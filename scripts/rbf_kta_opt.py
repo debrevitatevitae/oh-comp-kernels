@@ -4,21 +4,32 @@ import time
 import numpy as np
 import pandas as pd
 import torch
+from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 from ohqk.kta_classical import KernelTargetAlignmentLoss, rbf_kernel
-from ohqk.project_directories import RESULTS_DIR
-from ohqk.utils import load_split_data
+from ohqk.project_directories import PROC_DATA_DIR, RESULTS_DIR
 
 if __name__ == "__main__":
     start = time.time()
 
     np.random.seed(42)
 
+    save = False
+
     # data loading, splitting and scaling
-    X_train_scaled, _, y_train, _ = load_split_data(
-        test_size=0.2, scale="standard", to_torch=True, to_jax=False
-    )
+    df_data = pd.read_csv(PROC_DATA_DIR / "data_labeled.csv")
+    df_train, _ = train_test_split(df_data, train_size=0.8)
+    X_train = df_train[["eps11", "eps22", "eps12"]].to_numpy()
+    y_train = df_train["failed"].to_numpy(dtype=np.int32)
+    N = len(X_train)
+
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+
+    # convert to torch tensors
+    X_train_scaled = torch.tensor(X_train_scaled, dtype=torch.float32)
+    y_train = torch.tensor(y_train, dtype=torch.int32)
 
     # optimization hyperparameters
     num_epochs = 100
@@ -94,9 +105,10 @@ if __name__ == "__main__":
             )
 
     # save DataFrame to a csv file named after this Python file
-    python_file_name = os.path.basename(__file__)
-    python_file_name_no_ext = os.path.splitext(python_file_name)[0]
-    df.to_csv(RESULTS_DIR / f"{python_file_name_no_ext}.csv", index=False)
+    if save:
+        python_file_name = os.path.basename(__file__)
+        python_file_name_no_ext = os.path.splitext(python_file_name)[0]
+        df.to_csv(RESULTS_DIR / f"{python_file_name_no_ext}.csv", index=False)
 
     exec_time = time.time() - start
     minutes = int(exec_time // 60)
