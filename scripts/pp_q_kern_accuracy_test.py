@@ -20,10 +20,10 @@ if __name__ == "__main__":
     results_df = pd.concat([rbf_df, q_df])
 
     # Make a barplot
-    sns.set_style("whitegrid")
+    sns.set_style("white")
     sns.set_palette("colorblind")
     sns.set_context("paper")
-    sns.set(font_scale=1.5)
+    sns.set_theme(font_scale=1.5)
 
     fig, ax = plt.subplots(figsize=(10, 6))
     sns.barplot(
@@ -33,6 +33,7 @@ if __name__ == "__main__":
         data=results_df,
         ax=ax,
     )
+    ax.set_ylim(0.5, 0.95)
 
     # Move the legend above the plot and reduce the font size.
     ax.legend(
