@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import numpy as np
 from torch.utils.data import Dataset
 
@@ -67,25 +69,30 @@ def assign_labels(strains, stresses, curve_idx=0, residual_stiffness=0.9):
 class StrainsStressesLabels:
     """Class for loading and labeling strains and stresses"""
 
-    def __init__(self, data_file_path, labeling_threshold=0.9):
+    def __init__(
+        self, data_file_path: Path | str, labeling_threshold: float = None
+    ):
         self.data_file_path = data_file_path
-        self.labeling_threshold = labeling_threshold
 
         self.strains, self.stresses = read_file_to_numpy_array(
             self.data_file_path,
             dim_input=3,
         )
 
-        self.labels = assign_labels(
-            self.strains,
-            self.stresses,
-            residual_stiffness=self.labeling_threshold,
+        self.labels = (
+            assign_labels(
+                self.strains,
+                self.stresses,
+                residual_stiffness=labeling_threshold,
+            )
+            if labeling_threshold
+            else np.zeros(len(self.strains))
         )
 
     def __len__(self):
         return len(self.strains)
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int):
         x = self.strains[index]
         y = self.stresses[index]
         z = self.labels[index]
