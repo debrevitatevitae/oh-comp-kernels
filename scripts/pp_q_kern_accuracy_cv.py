@@ -15,6 +15,7 @@ if __name__ == "__main__":
     results_files = find_order_concatenate_cv_result_files()
 
     embedding_types = ["iqp", "he2_trained_False", "he2_trained_True"]
+    embedding_names = ["IQP", "HE2, random parameters", "HE2, trained"]
     num_architectures = len(results_files) // 3
 
     # Find the best scoring embeddings for each embedding type
@@ -38,18 +39,20 @@ if __name__ == "__main__":
         df = pd.read_csv(RESULTS_DIR / results_file)
         # Get the architecture name from the file name
         # architecture = results_file.split("_")[4]
+        ax = axs[i // num_architectures]
         sns.scatterplot(
-            data=df,
-            x="param_C",
-            y="mean_test_score",
-            color=palette[i],
-            ax=axs[i // num_architectures],
-            # label=architecture,
+            data=df, x="param_C", y="mean_test_score", color=palette[i], ax=ax
         )
 
     for i in range(3):
         # Set x-axis to logarithmic scale
-        axs[i].set(xscale="log", title=embedding_types[i], ylim=(0.6, 0.9))
+        axs[i].set(
+            xscale="log",
+            title=embedding_names[i],
+            ylim=(0.6, 0.9),
+            xlabel="C",
+            ylabel="mean test score",
+        )
 
     fig.tight_layout()
 
