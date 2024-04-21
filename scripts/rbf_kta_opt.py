@@ -15,7 +15,7 @@ if __name__ == "__main__":
 
     np.random.seed(42)
 
-    save = False
+    save = True
 
     # data loading, splitting and scaling
     df_data = pd.read_csv(PROC_DATA_DIR / "data_labeled.csv")
@@ -32,9 +32,9 @@ if __name__ == "__main__":
     y_train = torch.tensor(y_train, dtype=torch.int32)
 
     # optimization hyperparameters
-    num_epochs = 100
-    batch_size = 471  # 30% of the training dataset dimension
-    lr = 1e-1
+    num_epochs = 500
+    batch_size = 5
+    lr = 1e-2
     gamma = torch.tensor(0.1, requires_grad=True)  # initial gamma
     opt = torch.optim.Adam([gamma], lr)
     loss_function = KernelTargetAlignmentLoss(rbf_kernel)
@@ -42,7 +42,7 @@ if __name__ == "__main__":
     # DataFrame to store target alignment and parameters at checkpoints
     num_checkpoints = 20
     # how many times to compute the batched kta at checkpoint (for reporting)
-    num_reps_at_checkpoint = 10
+    num_reps_at_checkpoint = 500
     epochs_in_checkpoint = num_epochs // num_checkpoints
     columns = ["kta", "gamma"]
     rows = ["Initial"]
