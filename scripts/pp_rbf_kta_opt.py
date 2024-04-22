@@ -1,14 +1,13 @@
 import os
 import time
+
+import pandas as pd
 from matplotlib import pyplot as plt
 from matplotlib.ticker import FuncFormatter
 
-import pandas as pd
+from ohqk.project_directories import GRAPHICS_DIR, RESULTS_DIR
 
-from ohqk.project_directories import RESULTS_DIR, GRAPHICS_DIR
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     start = time.time()
 
     # Load results into DataFrame
@@ -23,21 +22,24 @@ if __name__ == '__main__':
     fig, ax = plt.subplots()
 
     # Select the max KTA value and the corresponding number of epochs
-    kta_max = df['kta'].max()
-    epochs_kta_max = df['kta'].argmax() * 5
+    idx_kta_max = df["kta"].argmax()
+    epochs_kta_max = df.loc[idx_kta_max, "epochs"]
+    kta_max = df.loc[idx_kta_max, "kta"]
+
+    n_epochs = df["epochs"].max()
 
     # Set the y-tick formatting function
     def format_y_ticks(value, _):
-        return f'{value:.3f}'
+        return f"{value:.3f}"
 
     ax.yaxis.set_major_formatter(FuncFormatter(format_y_ticks))
 
     # Plot
-    ax.plot(range(0, 105, 5), df['kta'], linewidth=1.5, color='blue')
-    ax.set_xticks([0, epochs_kta_max, 100])
-    ax.set_yticks([df['kta'][0], kta_max])
-    ax.set_xlabel('epochs')
-    ax.set_ylabel('KTA')
+    ax.plot(range(0, n_epochs + 1, 10), df["kta"], linewidth=1.5, color="blue")
+    ax.set_xticks([0, epochs_kta_max, n_epochs])
+    ax.set_yticks([df.loc[0, "kta"], kta_max])
+    ax.set_xlabel("epochs")
+    ax.set_ylabel("KTA")
 
     # Adjust layout
     fig.tight_layout()

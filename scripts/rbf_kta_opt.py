@@ -39,22 +39,12 @@ if __name__ == "__main__":
     opt = torch.optim.Adam([gamma], lr)
     loss_function = KernelTargetAlignmentLoss(rbf_kernel)
 
-    # DataFrame to store target alignment and parameters at checkpoints
-    num_checkpoints = 20
     # how many times to compute the batched kta at checkpoint (for reporting)
     num_reps_at_checkpoint = 500
-    epochs_in_checkpoint = num_epochs // num_checkpoints
+    epochs_to_checkpoint = 10
     columns = ["kta", "gamma"]
-    rows = ["Initial"]
-    rows.extend(
-        [
-            f"Epoch no {n}"
-            for n in range(
-                epochs_in_checkpoint,
-                num_epochs + epochs_in_checkpoint,
-                epochs_in_checkpoint,
-            )
-        ]
+    rows = list(
+        range(0, num_epochs + epochs_to_checkpoint, epochs_to_checkpoint)
     )
     df = pd.DataFrame(columns=columns, index=rows)
 
@@ -78,8 +68,8 @@ if __name__ == "__main__":
     # initial kta
     kta_avg = compute_avg_kta()
     print(f"Initial average KTA ={kta_avg:.5f} , initial gamma ={gamma:.3f}")
-    df.loc["Initial", "kta"] = kta_avg.item()
-    df.loc["Initial", "gamma"] = gamma.item()
+    df.loc[0, "kta"] = kta_avg.item()
+    df.loc[0, "gamma"] = gamma.item()
 
     # optimization loop
     for ep in range(num_epochs):
@@ -95,11 +85,11 @@ if __name__ == "__main__":
         opt.step()
 
         # compute average alignment over some batches, store in DataFrame and report
-        if (ep + 1) % epochs_in_checkpoint == 0:
+        if (ep + 1) % epochs_to_checkpoint == 0:
             kta_avg = compute_avg_kta()
 
-            df.loc[f"Epoch no {ep+1}", "kta"] = kta_avg.item()
-            df.loc[f"Epoch no {ep+1}", "gamma"] = gamma.item()
+            df.loc[ep + 1, "kta"] = kta_avg.item()
+            df.loc[ep + 1, "gamma"] = gamma.item()
             print(
                 f"Epoch {ep+1}, average KTA = {kta_avg:.5f}, gamma={gamma:.3f}"
             )
@@ -108,7 +98,11 @@ if __name__ == "__main__":
     if save:
         python_file_name = os.path.basename(__file__)
         python_file_name_no_ext = os.path.splitext(python_file_name)[0]
-        df.to_csv(RESULTS_DIR / f"{python_file_name_no_ext}.csv", index=False)
+        df.to_csv(
+            RESULTS_DIR / f"{python_file_name_no_ext}.csv",
+            index=True,
+            index_label="epochs",
+        )
 
     exec_time = time.time() - start
     minutes = int(exec_time // 60)
