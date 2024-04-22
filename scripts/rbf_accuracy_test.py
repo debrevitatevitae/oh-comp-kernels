@@ -35,7 +35,7 @@ if __name__ == "__main__":
     # create a DataFrame for the results, which includes the training set size, mean test accuracy, the standard deviation of the test accuracy and the number of support vectors
     out_df = pd.DataFrame(
         columns=[
-            "param_C",
+            "kernel",
             "train_size",
             "mean_test_accuracy",
             "std_test_accuracy",
@@ -63,7 +63,7 @@ if __name__ == "__main__":
                 accuracies.append(clf.score(X_test_scaled, y_test))
 
             out_df.loc[len(out_df)] = {
-                "param_C": C,
+                "kernel": f"rbf_C{C:.1E}",
                 "train_size": ts,
                 "mean_test_accuracy": np.mean(accuracies),
                 "std_test_accuracy": np.std(accuracies),

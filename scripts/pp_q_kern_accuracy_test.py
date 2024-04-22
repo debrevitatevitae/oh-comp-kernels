@@ -24,13 +24,13 @@ if __name__ == "__main__":
     sns.set_style("whitegrid")
     sns.set_palette("colorblind")
     # sns.set_context("paper")
-    sns.set_theme(font_scale=1.5)
+    sns.set_theme(font_scale=1.2)
 
     fig, ax = plt.subplots(figsize=(10, 6))
     plt.grid(color="grey")
     ax.set_facecolor("white")
     ax.set_xlabel("training set size")
-    ax.set_ylabel("mean test score")
+    ax.set_ylabel("test accuracy")
     ax.set_ylim(0.5, 0.95)
     ax = sns.barplot(
         x="train_size",
