@@ -1,14 +1,29 @@
 import os
 import re
+from types import NoneType
 
 import jax.numpy as jnp
 import numpy as np
 import pandas as pd
 import torch
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from sklearn.svm import SVC
 
 from ohqk.project_directories import PROC_DATA_DIR, RESULTS_DIR
+
+
+class IdentityTransformer(BaseEstimator, TransformerMixin):
+    def __init__(self):
+        pass
+
+    def fit(self, input_array, y=None):
+        return self
+
+    def transform(self, input_array, y=None):
+        return input_array * 1
 
 
 def relabel_to_m1p1(
@@ -19,7 +34,7 @@ def relabel_to_m1p1(
 
 def load_split_scale_data(
     test_size: float = 0.2,
-    scale: str = "standard",
+    scale: str | NoneType = None,
     to_torch: bool = False,
     to_jax: bool = False,
 ):
@@ -44,14 +59,13 @@ def load_split_scale_data(
     X_test = df_test[["eps11", "eps22", "eps12"]].to_numpy()
     y_test = df_test["failed"].to_numpy(dtype=np.int32)
 
-    if scale == "standard":
-        scaler = StandardScaler()
-    elif scale == "angle":
-        scaler = MinMaxScaler(feature_range=(0, np.pi))
-    else:
-        raise ValueError(
-            f"scale must be either 'standard' or 'angle', not {scale}"
-        )
+    match scale:
+        case "standard":
+            scaler = StandardScaler()
+        case "angle":
+            scaler = MinMaxScaler(feature_range=(0, np.pi))
+        case _:
+            scaler = IdentityTransformer()
 
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
@@ -168,3 +182,22 @@ def running_average_filter(points, factor=0.3):
         else:
             smoothed_points.append(point)
     return smoothed_points
+
+
+def get_classification_metrics(clf: SVC, X: np.ndarray, y_true: np.ndarray):
+    """Returns accuracy, Jaccard index, precision, recall and specificity
+    of the classifier.
+
+    Args:
+        clf (SVC): the SVC classifier
+        X (np.ndarray): input samples
+        y_true (np.ndarray): the true labels
+    """
+    y_pred = clf.predict(X)
+    tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
+    accuracy = (tn + fp) / (tn + fp + fn + fp)
+    jaccard = tp / (tp + fn + fp)
+    precision = tp / (tp + fp)
+    recall = tp / (tp + fn)
+    specificity = tn / (tn + fp)
+    return accuracy, jaccard, precision, recall, specificity
