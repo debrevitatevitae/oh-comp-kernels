@@ -10,6 +10,9 @@ import seaborn as sns
 from ohqk.project_directories import GRAPHICS_DIR, RESULTS_DIR
 
 if __name__ == "__main__":
+    plt.rcParams["text.usetex"] = True
+    plt.rcParams["font.size"] = 12
+
     start = time.time()
 
     # Load test accuracy results into DataFrame and merge into one
@@ -29,8 +32,8 @@ if __name__ == "__main__":
     fig, ax = plt.subplots(figsize=(10, 6))
     plt.grid(color="grey")
     ax.set_facecolor("white")
-    ax.set_xlabel("training set size")
-    ax.set_ylabel("test accuracy")
+    ax.set_xlabel("Training Set Size")
+    ax.set_ylabel("Mean Test Accuracy")
     ax.set_ylim(0.5, 0.95)
     ax = sns.barplot(
         x="train_size",

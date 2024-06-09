@@ -24,7 +24,7 @@ if __name__ == "__main__":
 
     eps, sigma, label = next(iter(dl))
     sns.scatterplot(x=eps[:, 0], y=sigma[:, 0], hue=label, palette="coolwarm")
-    plt.xlabel(r"$\varepsilon$")
-    plt.ylabel(r"$\sigma$")
-    plt.legend(["intact", "failed"])  # Add legend labels
+    plt.xlabel(r"$\varepsilon [-]$")
+    plt.ylabel(r"$\sigma$ [MPa]")
+    plt.legend(["failed", "intact"])  # Add legend labels
     plt.savefig(GRAPHICS_DIR / "labelled_eps_sigma.pdf")

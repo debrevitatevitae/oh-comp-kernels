@@ -2,13 +2,16 @@ import os
 import time
 
 import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
+import numpy as np
 import pandas as pd
 import seaborn as sns
 
 from ohqk.project_directories import GRAPHICS_DIR, RESULTS_DIR
 
 if __name__ == "__main__":
+    plt.rcParams["text.usetex"] = True
+    plt.rcParams["font.size"] = 12
+
     start = time.time()
 
     # Load results into DataFrame
@@ -40,13 +43,14 @@ if __name__ == "__main__":
         annot=True,
         fmt=".3f",
         cmap="viridis",
-        cbar_kws={"label": "Vaidation Accuracy"},
+        cbar_kws={"label": "Mean Vaidation Accuracy"},
         xticklabels=pivot_table.columns.round(3),
-        yticklabels=[f"{i:0.1e}" for i in pivot_table.index],
+        yticklabels=[r"$10^{-1}$"]
+        + [rf"$10^{i}$" for i in np.arange(0, 8, 1, dtype=int)],
     )
 
-    plt.xlabel("gamma")
-    plt.ylabel("C")
+    plt.xlabel(r"$\gamma$")
+    plt.ylabel(r"$C$")
     plt.savefig(GRAPHICS_DIR / f"{python_file_name_no_ext}.pdf")
 
     exec_time = time.time() - start

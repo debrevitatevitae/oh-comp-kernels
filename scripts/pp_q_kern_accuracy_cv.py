@@ -10,6 +10,9 @@ from ohqk.project_directories import GRAPHICS_DIR, RESULTS_DIR
 from ohqk.utils import find_order_concatenate_cv_result_files
 
 if __name__ == "__main__":
+    plt.rcParams["text.usetex"] = True
+    plt.rcParams["font.size"] = 12
+
     start = time.time()
 
     results_files = find_order_concatenate_cv_result_files()
@@ -32,7 +35,7 @@ if __name__ == "__main__":
     )
 
     # Creare a figure and axes
-    fig, axs = plt.subplots(1, 3, figsize=(10, 7), sharey=True)
+    fig, axs = plt.subplots(1, 3, figsize=(10, 8), sharey=True)
 
     # Loop over the results files and plot the mean test scores in a seaborn scatterplot
     for i, results_file in enumerate(results_files):
@@ -50,8 +53,20 @@ if __name__ == "__main__":
             xscale="log",
             title=embedding_names[i],
             ylim=(0.6, 0.9),
-            xlabel="C",
-            ylabel="mean test score",
+            xlabel="$C$",
+            ylabel="Mean Test Accuracy",
+        )
+        axs[i].set_xticks(
+            [0.1, 1.0, 10.0, 100.0, 1000.0, 10_000.0, 100_000.0],
+            labels=[
+                r"$10^{-1}$",
+                r"$10^{0}$",
+                r"$10^{1}$",
+                r"$10^{2}$",
+                r"$10^{3}$",
+                r"$10^{4}$",
+                r"$10^{5}$",
+            ],
         )
 
     fig.tight_layout()

@@ -8,6 +8,7 @@ from matplotlib.ticker import FuncFormatter
 from ohqk.project_directories import GRAPHICS_DIR, RESULTS_DIR
 
 if __name__ == "__main__":
+    plt.rcParams["text.usetex"] = True
     start = time.time()
 
     # Load results into DataFrame

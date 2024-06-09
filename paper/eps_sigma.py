@@ -21,6 +21,6 @@ if __name__ == "__main__":
 
     eps, sigma, _ = next(iter(dl))
     sns.scatterplot(x=eps[:, 0], y=sigma[:, 0])
-    plt.xlabel(r"$\varepsilon$")
-    plt.ylabel(r"$\sigma$")
+    plt.xlabel(r"$\varepsilon [-]$")
+    plt.ylabel(r"$\sigma$ [MPa]")
     plt.savefig(GRAPHICS_DIR / "nolabels_eps_sigma.pdf")
