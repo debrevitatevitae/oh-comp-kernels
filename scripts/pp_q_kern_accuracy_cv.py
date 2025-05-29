@@ -54,7 +54,7 @@ if __name__ == "__main__":
             title=embedding_names[i],
             ylim=(0.6, 0.9),
             xlabel="$C$",
-            ylabel="Mean Test Accuracy",
+            ylabel="Mean Validation Accuracy",
         )
         axs[i].set_xticks(
             [0.1, 1.0, 10.0, 100.0, 1000.0, 10_000.0, 100_000.0],
